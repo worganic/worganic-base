@@ -670,6 +670,7 @@ app.get('/api/config/keys', (req, res) => {
                 }
             },
             appVersion: globalConf.appVersion || '',
+            headerIaVisible: globalConf.headerIaVisible !== undefined ? globalConf.headerIaVisible : false,
             // Préférences outils par utilisateur — stockées en DB (priorité sur flags globaux conf.json)
             enabledTools: {
                 tickets: userEnabledTools.tickets !== undefined ? userEnabledTools.tickets : (globalConf.ticketsEnabled || false),
@@ -692,7 +693,7 @@ app.post('/api/config/keys', async (req, res) => {
     const user = getSessionUser(req);
     if (!user) return res.status(401).json({ error: 'Non authentifié' });
     try {
-        const { gemini, claude, cliConfig, appVersion, ticketsEnabled, recetteWidgetEnabled, enabledTools } = req.body;
+        const { gemini, claude, cliConfig, appVersion, ticketsEnabled, recetteWidgetEnabled, enabledTools, headerIaVisible } = req.body;
 
         // ── Config IA propre à l'utilisateur ────────────────────────────────
         const userConfig = { ...(user.config || {}) };
@@ -742,7 +743,7 @@ app.post('/api/config/keys', async (req, res) => {
         }
 
         // ── Settings globaux (conf.json) — tous les champs peuvent être mis à jour ──
-        if (appVersion !== undefined || ticketsEnabled !== undefined || recetteWidgetEnabled !== undefined) {
+        if (appVersion !== undefined || ticketsEnabled !== undefined || recetteWidgetEnabled !== undefined || headerIaVisible !== undefined) {
             let globalConf = {};
             if (fs.existsSync(CONFIG_FILE)) {
                 try { globalConf = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8')); } catch {}
@@ -752,6 +753,7 @@ app.post('/api/config/keys', async (req, res) => {
             if (appVersion !== undefined) globalConf.appVersion = appVersion;
             if (ticketsEnabled !== undefined) globalConf.ticketsEnabled = ticketsEnabled;
             if (recetteWidgetEnabled !== undefined) globalConf.recetteWidgetEnabled = recetteWidgetEnabled;
+            if (headerIaVisible !== undefined) globalConf.headerIaVisible = Boolean(headerIaVisible);
             globalConf.lastUpdated = new Date().toISOString();
             fs.writeFileSync(CONFIG_FILE, JSON.stringify(globalConf, null, 2), 'utf8');
         }
@@ -3992,17 +3994,25 @@ app.delete('/api/frank/projects/:id/steps/:stepId', async (req, res) => {
 
 const VERSION_FILE = path.join(PROJECT_ROOT, 'version.json');
 
+function getLocalVersionInfo() {
+    if (!fs.existsSync(VERSION_FILE)) return { localVersion: '0.00', versionPrefix: '' };
+    try {
+        let raw = fs.readFileSync(VERSION_FILE, 'utf8');
+        if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+        const vf = JSON.parse(raw);
+        const localVersion = vf.base || vf.child || vf.version || '0.00';
+        const match = localVersion.match(/^[A-Za-z-]+/);
+        const versionPrefix = match ? match[0] : '';
+        return { localVersion, versionPrefix };
+    } catch { return { localVersion: '0.00', versionPrefix: '' }; }
+}
+
 app.get('/api/version/check', async (req, res) => {
     try {
-        let localVersion = '0.00';
-        if (fs.existsSync(VERSION_FILE)) {
-            let raw = fs.readFileSync(VERSION_FILE, 'utf8');
-            if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1); // strip BOM
-            const vf = JSON.parse(raw);
-            localVersion = vf.base || vf.version || '0.00';
-        }
+        const { localVersion, versionPrefix } = getLocalVersionInfo();
         const [rows] = await pool.query(
-            'SELECT * FROM app_deployments ORDER BY deployed_at DESC LIMIT 1'
+            'SELECT * FROM app_deployments WHERE version LIKE ? ORDER BY deployed_at DESC LIMIT 1',
+            [versionPrefix + '%']
         );
         const latest = rows[0] || null;
         const upToDate = !latest || latest.version === localVersion;
@@ -4017,8 +4027,10 @@ app.get('/api/admin/deployments', async (req, res) => {
     const user = getSessionUser(req);
     if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
     try {
+        const { versionPrefix } = getLocalVersionInfo();
         const [rows] = await pool.query(
-            'SELECT * FROM app_deployments ORDER BY deployed_at DESC LIMIT 50'
+            'SELECT * FROM app_deployments WHERE version LIKE ? ORDER BY deployed_at DESC LIMIT 50',
+            [versionPrefix + '%']
         );
         res.json(rows);
     } catch (e) {
@@ -4090,6 +4102,27 @@ app.post('/api/child/config/:key', (req, res) => {
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: 'Erreur écriture config child' });
+    }
+});
+
+// GET /api/child/css — CSS override personnalisé
+app.get('/api/child/css', (req, res) => {
+    const filePath = path.join(CHILD_CONFIG_DIR, 'custom.css');
+    const customCSS = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
+    res.json({ customCSS });
+});
+
+// POST /api/child/css — Sauvegarde CSS override (admin)
+app.post('/api/child/css', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
+    const { customCSS } = req.body;
+    try {
+        if (!fs.existsSync(CHILD_CONFIG_DIR)) fs.mkdirSync(CHILD_CONFIG_DIR, { recursive: true });
+        fs.writeFileSync(path.join(CHILD_CONFIG_DIR, 'custom.css'), customCSS || '', 'utf8');
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Erreur écriture CSS custom' });
     }
 });
 

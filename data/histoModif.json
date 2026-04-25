@@ -328,6 +328,27 @@
       "prompt": "les données css affiché dans la gestion du thème n'est pas complet. le fichier @frankenstein/src/styles.scss contient beaucoup plus d'element",
       "startedAt": "2026-04-25T14:30:00.000Z",
       "completedAt": "2026-04-25T15:00:00.000Z"
+    },
+    {
+      "id": "mod-014",
+      "version": "B0.15",
+      "date": "2026-04-25T16:00:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "server"
+      ],
+      "features": "server:deployments",
+      "title": "Fix admin/déploiements : filtrage par préfixe de version",
+      "description": "Correction de deux bugs dans la base. (1) /api/version/check retournait le dernier déploiement toutes versions confondues (y compris child THI-0.xx), provoquant un faux \"mise à jour requise\" dans le header de la base. (2) /api/admin/deployments retournait tous les déploiements DB sans distinction base/child, affichant les entrées du child dans la console admin de la base. Fix : ajout de la fonction getLocalVersionInfo() qui lit version.json et extrait le préfixe de version (B pour la base, THI- pour un child). Les deux routes filtrent désormais par WHERE version LIKE 'prefix%', automatiquement adapté selon le contexte base ou child.",
+      "files": [
+        "server/server-data.js"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans la version de base on à dans admin/déploiements, les infos d'un child, on ne doit pas connaitre les childs dans la base, on à aussi en haut à droite une information de mise à jour requise alors que la base ou l'on ce trouve est bien à jour, vérifi tous ça",
+      "startedAt": "2026-04-25T15:30:00.000Z",
+      "completedAt": "2026-04-25T16:00:00.000Z"
     }
   ]
 }
