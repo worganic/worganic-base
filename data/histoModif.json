@@ -6,14 +6,26 @@
       "date": "2026-04-25T00:00:00.000Z",
       "type": "config",
       "commitType": "AMELIORATION",
-      "scope": ["system"],
+      "scope": [
+        "system"
+      ],
       "features": "system:workflow",
       "title": "Système double versioning base/child",
       "description": "Mise en place du double système de versioning : préfixe B pour la base (B0.01), préfixe THI- pour le child (THI-0.01). Ajout du champ baseSynced dans version.json du child pour tracker la version base intégrée. Création de data/base-propagation.json pour tracer les modifications à propager aux children. Mise à jour CLAUDE.md base (règles propagation, format commit BASE-BX.XX) et child (règles sync, format commit THI-X.XX). Mise à jour server-data.js pour lire/écrire le champ base. Ajout routes /api/admin/propagation (GET + PATCH). Ajout panneau 'Propagations en attente' dans admin-deployments.",
-      "files": ["version.json","data/base-propagation.json","data/histoModif.json","CLAUDE.md","server/server-data.js","frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.ts","frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"],
-      "ai": "Claude Code","model": "claude-sonnet-4-6",
+      "files": [
+        "version.json",
+        "data/base-propagation.json",
+        "data/histoModif.json",
+        "CLAUDE.md",
+        "server/server-data.js",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
       "prompt": "ok je valide la solution B et tu peux lancer les étapes de 1 à 4",
-      "startedAt": "2026-04-25T00:00:00.000Z","completedAt": "2026-04-25T00:00:00.000Z"
+      "startedAt": "2026-04-25T00:00:00.000Z",
+      "completedAt": "2026-04-25T00:00:00.000Z"
     },
     {
       "id": "mod-002",
@@ -21,14 +33,25 @@
       "date": "2026-04-25T01:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["frankenstein", "server"],
+      "scope": [
+        "frankenstein",
+        "server"
+      ],
       "features": "frankenstein:deployments,server:version-check",
       "title": "Tableau dual version child/base dans admin déploiements",
       "description": "Refonte de l'affichage du statut de version dans admin-deployments. Mode child détecté automatiquement : tableau à 2 lignes avec statut indépendant et action. admin.component mis à jour. Propagé vers child.",
-      "files": ["server/server-data.js","frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.ts","frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html","frankenstein/src/app/pages/admin/admin.component.ts","frankenstein/src/app/pages/admin/admin.component.html"],
-      "ai": "Claude Code","model": "claude-sonnet-4-6",
+      "files": [
+        "server/server-data.js",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html",
+        "frankenstein/src/app/pages/admin/admin.component.ts",
+        "frankenstein/src/app/pages/admin/admin.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
       "prompt": "coté base cela à l'air bon mais coté child cela m'indique dernier deploiement BASE-B0.02...",
-      "startedAt": "2026-04-25T01:00:00.000Z","completedAt": "2026-04-25T01:00:00.000Z"
+      "startedAt": "2026-04-25T01:00:00.000Z",
+      "completedAt": "2026-04-25T01:00:00.000Z"
     },
     {
       "id": "mod-003",
@@ -36,14 +59,22 @@
       "date": "2026-04-25T02:00:00.000Z",
       "type": "fix",
       "commitType": "FIX",
-      "scope": ["frankenstein"],
+      "scope": [
+        "frankenstein"
+      ],
       "features": "frankenstein:deployments",
       "title": "Fix header tableau blanc + footer dual version",
       "description": "Fix couleur header tableau version (bg-white/3 → bg-white/5 par cellule). Footer mis à jour pour afficher en mode child les deux versions (THI-X.XX + BX.XX) avec icône sync_problem si la base n'est pas syncée. Propagé vers child--THI-V01.",
-      "files": ["frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html","frankenstein/src/app/shared/layout/footer/footer.component.ts","frankenstein/src/app/shared/layout/footer/footer.component.html"],
-      "ai": "Claude Code","model": "claude-sonnet-4-6",
+      "files": [
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html",
+        "frankenstein/src/app/shared/layout/footer/footer.component.ts",
+        "frankenstein/src/app/shared/layout/footer/footer.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
       "prompt": "il y a un soucis graphique sur les titres du tableau blanc sur blanc, ajoute aussi les différentes version avec un icone si il faut mettre à jour dans le footer, met à jour la version de base",
-      "startedAt": "2026-04-25T02:00:00.000Z","completedAt": "2026-04-25T02:00:00.000Z"
+      "startedAt": "2026-04-25T02:00:00.000Z",
+      "completedAt": "2026-04-25T02:00:00.000Z"
     },
     {
       "id": "mod-004",
@@ -51,11 +82,15 @@
       "date": "2026-04-25T03:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["frankenstein"],
+      "scope": [
+        "frankenstein"
+      ],
       "features": "frankenstein:deployments",
       "title": "Commandes action colonne tableau versions",
       "description": "Ajout des commandes à lancer dans la colonne Action du tableau dual version. Quand la version child n'est pas déployée : commandes git add/commit/push affichées. Quand la base n'est pas syncée : commande sync-from-base.bat affichée avec badge terminal.",
-      "files": ["frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"],
+      "files": [
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"
+      ],
       "ai": "Claude Code",
       "model": "claude-sonnet-4-6",
       "prompt": "lorsque la version n'est pas à jour, ajoute la ligne de commande à lancer pour mettre à jour dans la colonne action",
@@ -68,11 +103,15 @@
       "date": "2026-04-25T04:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["frankenstein"],
+      "scope": [
+        "frankenstein"
+      ],
       "features": "frankenstein:deployments",
       "title": "Action colonne référence sync-from-base.bat",
       "description": "Mise à jour de la colonne Action pour référencer le fichier sync-from-base.bat. Création du script .bat dans child--THI-V01 pour automatiser la synchronisation base → child : lecture des deux version.json, affichage des propagations en attente, mise à jour de baseSynced, calcul de la prochaine version child, affichage des commandes git/deploy-log.",
-      "files": ["frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"],
+      "files": [
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"
+      ],
       "ai": "Claude Code",
       "model": "claude-sonnet-4-6",
       "prompt": "ne serait il pas possible de créé un fichier .bat, pour lancer la mise à jour et mettre à jour le fichier json si necessaire ?",
@@ -85,11 +124,15 @@
       "date": "2026-04-25T05:00:00.000Z",
       "type": "fix",
       "commitType": "FIX",
-      "scope": ["server"],
+      "scope": [
+        "server"
+      ],
       "features": "server:version-check",
       "title": "Strip BOM version.json dans server-data.js",
       "description": "Fix BOM (EF BB BF) dans la lecture de version.json côté serveur. PowerShell 5.x écrit un BOM UTF-8 lors de la mise à jour du fichier, ce qui fait échouer JSON.parse côté Node. Ajout d'une défense : if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1). Propagé vers child--THI-V01.",
-      "files": ["server/server-data.js"],
+      "files": [
+        "server/server-data.js"
+      ],
       "ai": "Claude Code",
       "model": "claude-sonnet-4-6",
       "prompt": "PS E:\\...\\child--THI-V01> .\\sync-from-base.bat — erreur encodage bat + version.json BOM fix",
@@ -102,11 +145,15 @@
       "date": "2026-04-25T06:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["frankenstein"],
+      "scope": [
+        "frankenstein"
+      ],
       "features": "frankenstein:deployments",
       "title": "Badge version actuelle dans historique déploiements",
       "description": "Ajout de badges visuels dans la liste historique des déploiements pour indiquer la version actuellement utilisée. Mode child : badge vert 'laptop child' sur la version THI active (localVersion), badge jaune 'sync syncée' sur la version base intégrée (baseSynced). Mode base : badge jaune 'actuel' conservé. Propagé vers child--THI-V01.",
-      "files": ["frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"],
+      "files": [
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"
+      ],
       "ai": "Claude Code",
       "model": "claude-sonnet-4-6",
       "prompt": "il devrait y avoir un icone pour indiqué la version actuellement utilisé",
@@ -119,12 +166,20 @@
       "date": "2026-04-25T10:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["frankenstein", "server", "system"],
+      "scope": [
+        "frankenstein",
+        "server",
+        "system"
+      ],
       "features": "frankenstein:admin|deployments|site,server:config,system:workflow",
       "title": "Système child/ — personnalisation par child sans impact base",
       "description": "Création du système de personnalisation child-safe : dossier data/child/ (app.json, theme.json, nav.json, landing.json, home.json), dossier frankenstein/src/app/child/ (child-routes.ts, child-admin-tabs.ts). Nouveau AppConfigService qui charge les configs au démarrage (APP_INITIALIZER). AdminTabsRegistryService pour enregistrer les onglets admin dynamiquement. base-routes.ts extrait de app.routes.ts. Route serveur GET /api/child/config/:key. Header, footer, nav, landing, home branchés sur AppConfigService. Menu admin généré depuis le registre avec NgComponentOutlet pour les onglets child. CLAUDE.md mis à jour avec les règles de non-propagation.",
       "files": [
-        "data/child/app.json","data/child/theme.json","data/child/nav.json","data/child/landing.json","data/child/home.json",
+        "data/child/app.json",
+        "data/child/theme.json",
+        "data/child/nav.json",
+        "data/child/landing.json",
+        "data/child/home.json",
         "frankenstein/src/app/core/services/app-config.service.ts",
         "frankenstein/src/app/core/services/admin-tabs-registry.service.ts",
         "frankenstein/src/app/base-routes.ts",
@@ -159,7 +214,10 @@
       "date": "2026-04-25T12:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["frankenstein", "server"],
+      "scope": [
+        "frankenstein",
+        "server"
+      ],
       "features": "frankenstein:site,server:config",
       "title": "Couleurs Tailwind via CSS vars — thème child overridable",
       "description": "tailwind.config.js : les 8 couleurs dark (primary, secondary, accent, accent-dark, accent-darker, background, surface, surface-light) passent de valeurs hex hardcodées à rgb(var(--tw-XXX) / <alpha-value>). styles.scss :root : ajout des 8 variables --tw-XXX avec valeurs RGB par défaut. Pink theme : override des 8 variables --tw-XXX dans .pink {}. server-data.js : ajout route POST /api/child/config/:key (admin requis) pour écriture des configs child depuis le front. Fix import nav.component.ts (chemin relatif incorrect '../../' → '../../../').",
@@ -174,6 +232,80 @@
       "prompt": "oui",
       "startedAt": "2026-04-25T10:00:00.000Z",
       "completedAt": "2026-04-25T12:00:00.000Z"
+    },
+    {
+      "id": "mod-010",
+      "version": "B0.11",
+      "date": "2026-04-25T13:00:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "frankenstein",
+        "server"
+      ],
+      "features": "frankenstein:config,server:config",
+      "title": "Zone IA header : défaut disabled + persistance redémarrage",
+      "description": "config.service.ts : headerIaVisible passe de signal(true) à signal(false) — la Zone IA dans le header est désactivée par défaut. server-data.js GET /api/config/keys : ajout de headerIaVisible dans la réponse (lu depuis conf.json, défaut false). server-data.js POST /api/config/keys : ajout de headerIaVisible dans les champs destructurés et dans la sauvegarde globale conf.json. data/config/conf.json : ajout de \"headerIaVisible\": false pour que l'état initial soit persisté dès le premier démarrage. La persistance était déjà codée dans saveHeaderIaVisible() mais le serveur ne sauvegardait ni ne renvoyait la valeur.",
+      "files": [
+        "frankenstein/src/app/core/services/config.service.ts",
+        "server/server-data.js",
+        "data/config/conf.json"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans la base il faudrais mettre l'option admin/config/Zone IA dans le header par defaut sur disabled. Il faut aussi gardé en mémoire cette option. Si le système est arrété et relancé il faut le remettre dans le même dernier état.",
+      "startedAt": "2026-04-25T12:55:00.000Z",
+      "completedAt": "2026-04-25T13:00:00.000Z"
+    },
+    {
+      "id": "mod-011",
+      "version": "B0.12",
+      "date": "2026-04-25T14:30:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein",
+        "server"
+      ],
+      "features": "frankenstein:admin,server:config",
+      "title": "Admin Thème : déplacé en base + preset sélectionné + CSS override",
+      "description": "1) AdminThemeComponent déplacé de child vers base : créé dans frankenstein/src/app/pages/admin/tabs/admin-theme/ et ajouté à BASE_ADMIN_TABS (order 5) dans admin.component.ts. 2) Détection du preset actif : activePreset signal calculé depuis detectActivePreset() — compare hexValues vs vars de chaque preset. Boutons presets avec ngClass pour affichage sélectionné (bordure + fond + icône check_circle). 3) Section CSS override : textarea monospace avec signal customCss(), badge 'Override actif' si contenu non vide. Routes serveur GET/POST /api/child/css : lit/écrit data/child/custom.css. Bouton Réinitialiser remet à vide. 4) app-config.service.ts : charge /api/child/css au démarrage et injecte le CSS via <style id='frankenstein-custom-css'> pour persistence.",
+      "files": [
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html",
+        "frankenstein/src/app/pages/admin/admin.component.ts",
+        "frankenstein/src/app/core/services/app-config.service.ts",
+        "server/server-data.js"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "le système d'admin/thème n'est pas affiché dans la base hors ce système est commun à tous les child et proviens donc de la base, il faut l'affiché dans la base. Ensuite le thème selectionné doit avoir son bouton en mode selection (ce n'est pas le cas actuellement). Il faudrait ajouté tous le css dans un textearea dans admin/thème pour pouvoir modifié l'ensemble du site manuellement, il doit bien sur y avoir un fichier style de base non modifiable et une version modifiable qui prend le pas sur la version de base si celui ci est modifié. On doit bien sur revenir au fichier de base si besoin.",
+      "startedAt": "2026-04-25T13:30:00.000Z",
+      "completedAt": "2026-04-25T14:30:00.000Z"
+    },
+    {
+      "id": "mod-012",
+      "version": "B0.13",
+      "date": "2026-04-25T14:00:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:admin|auth|site",
+      "title": "Fix couleurs thème : neon-border, landing, contraste boutons",
+      "description": "Correction de 3 bugs visuels liés au thème dynamique. (1) styles.scss : neon-border et neon-text migrés de rgba hardcodés vers rgb(var(--tw-accent)) et rgb(var(--tw-primary)) pour suivre les changements de preset. (2) landing.component.scss : réécriture complète remplaçant toutes les couleurs violettes hardcodées par des variables CSS (--tw-accent, --tw-primary, --tw-accent-dark, etc.). (3) admin-theme : ajout getter buttonTextClass basé sur luminance du --tw-primary pour adapter la couleur du texte des boutons (text-gray-900 vs text-white) selon la clarté du preset actif. Synchronisation base et child.",
+      "files": [
+        "frankenstein/src/styles.scss",
+        "frankenstein/src/app/pages/public/landing/landing.component.scss",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "il y a un pb de contrast avec certain bouton [Image #4]. LA couleur de l'icone n'est pas mis à jour avec le thème [Image #5]. Idem la page d'accueil et le header non connecté n'a pas le thème mis à jour [Image #6]",
+      "startedAt": "2026-04-25T13:00:00.000Z",
+      "completedAt": "2026-04-25T14:00:00.000Z"
     }
   ]
 }
