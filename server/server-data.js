@@ -3996,7 +3996,9 @@ app.get('/api/version/check', async (req, res) => {
     try {
         let localVersion = '0.00';
         if (fs.existsSync(VERSION_FILE)) {
-            const vf = JSON.parse(fs.readFileSync(VERSION_FILE, 'utf8'));
+            let raw = fs.readFileSync(VERSION_FILE, 'utf8');
+            if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1); // strip BOM
+            const vf = JSON.parse(raw);
             localVersion = vf.base || vf.version || '0.00';
         }
         const [rows] = await pool.query(
