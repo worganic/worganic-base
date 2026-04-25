@@ -370,6 +370,30 @@
       "prompt": "lorsque le fichier @install.bat à été utilisé, il faudrait le renommé en old-install.bat",
       "startedAt": "2026-04-25T16:15:00.000Z",
       "completedAt": "2026-04-25T16:30:00.000Z"
+    },
+    {
+      "id": "mod-016",
+      "version": "B0.17",
+      "date": "2026-04-25T10:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:admin",
+      "title": "Options styles avancés dans admin/theme",
+      "description": "Ajout de la section Styles avancés dans admin/theme : configuration des arrondis et épaisseur bordure des cartes, graisse et espacement des titres h1-h6, arrondi des champs de saisie. Ajout des variables CSS --card-radius, --card-border-width, --h-weight, --h-letter-spacing, --input-radius dans styles.scss avec règles globales. Application au démarrage via applyStyleSettings() dans app-config.service.ts. Sauvegarde dans theme.json sous styleSettings.",
+      "files": [
+        "frankenstein/src/styles.scss",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html",
+        "frankenstein/src/app/core/services/app-config.service.ts"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "A partir de la base dans la section admin/theme pourrais tu rajouté des options de configuration des styles, comme les contours des cards (couleur, taille, arrondis), les styles des balises h, et autre",
+      "startedAt": "2026-04-25T08:00:00.000Z",
+      "completedAt": "2026-04-25T10:00:00.000Z"
     }
   ]
 }

@@ -49,6 +49,23 @@
         "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html"
       ],
       "propagationNote": "Remplacer styles.scss (neon-border/neon-text/link-card avec CSS vars), landing.component.scss (refactoring complet couleurs hardcodées -> CSS vars), admin-theme.component.ts (ajout getter buttonTextClass + isLight), admin-theme.component.html (text-white -> [ngClass]=buttonTextClass sur les boutons save)"
+    },
+    {
+      "baseVersion": "B0.17",
+      "date": "2026-04-25T10:00:00.000Z",
+      "modRef": "mod-016",
+      "title": "Styles avancés admin/theme",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "frankenstein/src/styles.scss",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html",
+        "frankenstein/src/app/core/services/app-config.service.ts"
+      ],
+      "propagationNote": "Copier les 4 fichiers base vers le child. applyStyleSettings() dans app-config.service.ts applique les styleSettings au démarrage."
     }
   ]
 }
