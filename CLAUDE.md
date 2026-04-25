@@ -197,6 +197,13 @@ Options  : Oui — propagation requise | Non — base uniquement
 ```
 Ajouter l'entrée dans le tableau `entries` de `data/base-propagation.json`.
 
+### Fichiers et dossiers JAMAIS inclus dans propagationScope
+Les chemins suivants appartiennent exclusivement au child. Ne jamais les ajouter à `propagationScope` :
+- `data/child/**` — configs branding, thème, nav, landing, home
+- `frankenstein/src/app/child/**` — routes child, onglets admin child, pages child
+- `frankenstein/src/environments/environment.ts` — URLs spécifiques au child
+- `frankenstein/src/app/pages/child/**` — pages exclusives au child
+
 ### Marquer une propagation comme traitée
 Quand l'utilisateur confirme qu'un child a intégré la modification, mettre `propagationRequired: false` sur l'entrée correspondante et ajouter `"syncedBy": ["THI-V01"]`.
 

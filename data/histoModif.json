@@ -112,6 +112,46 @@
       "prompt": "il devrait y avoir un icone pour indiqué la version actuellement utilisé",
       "startedAt": "2026-04-25T06:00:00.000Z",
       "completedAt": "2026-04-25T06:00:00.000Z"
+    },
+    {
+      "id": "mod-008",
+      "version": "B0.09",
+      "date": "2026-04-25T10:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": ["frankenstein", "server", "system"],
+      "features": "frankenstein:admin|deployments|site,server:config,system:workflow",
+      "title": "Système child/ — personnalisation par child sans impact base",
+      "description": "Création du système de personnalisation child-safe : dossier data/child/ (app.json, theme.json, nav.json, landing.json, home.json), dossier frankenstein/src/app/child/ (child-routes.ts, child-admin-tabs.ts). Nouveau AppConfigService qui charge les configs au démarrage (APP_INITIALIZER). AdminTabsRegistryService pour enregistrer les onglets admin dynamiquement. base-routes.ts extrait de app.routes.ts. Route serveur GET /api/child/config/:key. Header, footer, nav, landing, home branchés sur AppConfigService. Menu admin généré depuis le registre avec NgComponentOutlet pour les onglets child. CLAUDE.md mis à jour avec les règles de non-propagation.",
+      "files": [
+        "data/child/app.json","data/child/theme.json","data/child/nav.json","data/child/landing.json","data/child/home.json",
+        "frankenstein/src/app/core/services/app-config.service.ts",
+        "frankenstein/src/app/core/services/admin-tabs-registry.service.ts",
+        "frankenstein/src/app/base-routes.ts",
+        "frankenstein/src/app/child/child-routes.ts",
+        "frankenstein/src/app/child/child-admin-tabs.ts",
+        "frankenstein/src/app/app.config.ts",
+        "frankenstein/src/app/app.routes.ts",
+        "frankenstein/src/app/pages/admin/admin.component.ts",
+        "frankenstein/src/app/pages/admin/admin.component.html",
+        "frankenstein/src/app/shared/layout/header/header.component.ts",
+        "frankenstein/src/app/shared/layout/header/header.component.html",
+        "frankenstein/src/app/shared/layout/footer/footer.component.ts",
+        "frankenstein/src/app/shared/layout/footer/footer.component.html",
+        "frankenstein/src/app/shared/layout/nav/nav.component.ts",
+        "frankenstein/src/app/shared/layout/nav/nav.component.html",
+        "frankenstein/src/app/pages/public/landing/landing.component.ts",
+        "frankenstein/src/app/pages/public/landing/landing.component.html",
+        "frankenstein/src/app/pages/user/home/home.component.ts",
+        "frankenstein/src/app/pages/user/home/home.component.html",
+        "server/server-data.js",
+        "CLAUDE.md"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "ok tu peux faire toutes les modifs dans base (qui seront répercuté ensuite dans child), l'idéal serait de regroupé tous ce qui est modifiable ou tous ce qui sera ajouté dans un repertoir spécifique dans child, afin de ne pas touché au reste, mais il faut alors que tous soi en adéquation avec le système",
+      "startedAt": "2026-04-25T08:00:00.000Z",
+      "completedAt": "2026-04-25T10:00:00.000Z"
     }
   ]
 }

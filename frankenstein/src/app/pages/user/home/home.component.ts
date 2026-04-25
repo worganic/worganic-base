@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { AppConfigService } from '../../../core/services/app-config.service';
 
 @Component({
   selector: 'app-home',
@@ -10,7 +11,12 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
-  constructor(private router: Router, public auth: AuthService) {}
+  constructor(private router: Router, public auth: AuthService, public appConfig: AppConfigService) {}
+
+  goToPrimary(): void {
+    const route = this.appConfig.homeConfig().primaryButtonRoute || '/projets';
+    this.router.navigate([route]);
+  }
 
   goToProjets(): void {
     this.router.navigate(['/projets']);
