@@ -114,9 +114,10 @@ Question 3 : "Titre du commit ?"
 ### Mise à jour de version.json
 Après décision de l'utilisateur, mettre à jour `version.json` :
 ```json
-{ "version": "X.XX" }
+{ "base": "BX.XX" }
 ```
-Le nouveau numéro de version est ensuite inclus dans le champ `version` de l'entrée histoModif.json.
+Le préfixe `B` identifie la version comme appartenant à la base. Exemples : `B0.01` → `B0.02` / `B0.99` → `B1.00`.
+Le nouveau numéro de version (ex: `B0.02`) est ensuite inclus dans le champ `version` de l'entrée histoModif.json.
 
 ---
 
@@ -141,7 +142,7 @@ Le titre doit refléter **l'ensemble des prompts depuis le dernier git**, pas se
 
 1. Mettre à jour `version.json` avec le nouveau numéro
 2. `git add` des fichiers modifiés (ne pas utiliser `git add .` — lister les fichiers explicitement)
-3. `git commit -m "vX.XX - YYYYMMDD - [TYPE] - Titre choisi"`
+3. `git commit -m "BASE-BX.XX - YYYYMMDD - [TYPE] - Titre choisi"`
    - Format de date : YYYYMMDD (ex: 20260321)
 4. `git push`
 5. **Enregistrer le déploiement en BDD** via le script `server/deploy-log.js` :
@@ -150,7 +151,7 @@ Le titre doit refléter **l'ensemble des prompts depuis le dernier git**, pas se
    - `--files` : union de tous les fichiers modifiés depuis le dernier commit
 ```bash
 node server/deploy-log.js \
-  --version "X.XX" \
+  --version "BX.XX" \
   --commit "vX.XX - YYYYMMDD - [TYPE] - Titre choisi" \
   --description "Description consolidée de TOUS les prompts depuis le dernier git" \
   --ai "Claude Code" \
@@ -162,6 +163,42 @@ node server/deploy-log.js \
 ```
 
 > **Note** : Ce script se connecte directement à MySQL sans nécessiter de session admin. Il doit être exécuté depuis la racine du projet (le `require('./db')` est relatif à `server/`). En cas d'échec, informer l'utilisateur d'enregistrer manuellement via Admin → Déploiements.
+
+---
+
+## Règle obligatoire : Propagation vers les children
+
+### Fichiers "core" — propagation automatique requise
+Toute modification d'un fichier dans les chemins suivants implique `propagationRequired: true` :
+- `server/` (sauf `server/server-data.js` si modification purement locale)
+- `electron/`
+- `CLAUDE.md`
+- `data/config/`
+- `server/deploy-log.js`
+
+### Question de propagation en fin de prompt
+Après la question de commit (Oui/Non), si la modification touche des fichiers "core", poser :
+```
+Question : "Cette modification doit-elle être propagée aux children ?"
+Options  : Oui — propagation requise | Non — base uniquement
+```
+
+### Si propagation requise → ajouter une entrée dans `data/base-propagation.json`
+```json
+{
+  "baseVersion": "BX.XX",
+  "date": "<ISO 8601>",
+  "modRef": "mod-XXX",
+  "title": "Titre court de la modification",
+  "propagationRequired": true,
+  "propagationScope": ["chemin/fichier1", "chemin/fichier2"],
+  "propagationNote": "Ce qu'il faut faire dans chaque child"
+}
+```
+Ajouter l'entrée dans le tableau `entries` de `data/base-propagation.json`.
+
+### Marquer une propagation comme traitée
+Quand l'utilisateur confirme qu'un child a intégré la modification, mettre `propagationRequired: false` sur l'entrée correspondante et ajouter `"syncedBy": ["THI-V01"]`.
 
 ---
 

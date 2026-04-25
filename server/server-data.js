@@ -3997,7 +3997,7 @@ app.get('/api/version/check', async (req, res) => {
         let localVersion = '0.00';
         if (fs.existsSync(VERSION_FILE)) {
             const vf = JSON.parse(fs.readFileSync(VERSION_FILE, 'utf8'));
-            localVersion = vf.version || '0.00';
+            localVersion = vf.base || vf.version || '0.00';
         }
         const [rows] = await pool.query(
             'SELECT * FROM app_deployments ORDER BY deployed_at DESC LIMIT 1'
@@ -4048,11 +4048,50 @@ app.post('/api/admin/deployments', async (req, res) => {
                 features || ''
             ]
         );
-        fs.writeFileSync(VERSION_FILE, JSON.stringify({ version }, null, 2), 'utf8');
+        fs.writeFileSync(VERSION_FILE, JSON.stringify({ base: version }, null, 2), 'utf8');
         res.json({ success: true });
     } catch (e) {
         console.error('[DEPLOYMENTS] Create error:', e);
         res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+const PROPAGATION_FILE = path.join(PROJECT_ROOT, 'data', 'base-propagation.json');
+
+app.get('/api/admin/propagation', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
+    try {
+        const data = fs.existsSync(PROPAGATION_FILE)
+            ? JSON.parse(fs.readFileSync(PROPAGATION_FILE, 'utf8'))
+            : { entries: [] };
+        res.json(data.entries || []);
+    } catch (e) {
+        console.error('[PROPAGATION] Read error:', e);
+        res.status(500).json({ error: 'Erreur lecture propagation' });
+    }
+});
+
+app.patch('/api/admin/propagation/:baseVersion', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
+    const { baseVersion } = req.params;
+    const { childId } = req.body;
+    if (!childId) return res.status(400).json({ error: 'childId requis' });
+    try {
+        const data = fs.existsSync(PROPAGATION_FILE)
+            ? JSON.parse(fs.readFileSync(PROPAGATION_FILE, 'utf8'))
+            : { entries: [] };
+        const entry = (data.entries || []).find(e => e.baseVersion === baseVersion);
+        if (!entry) return res.status(404).json({ error: 'Entrée non trouvée' });
+        if (!entry.syncedBy) entry.syncedBy = [];
+        if (!entry.syncedBy.includes(childId)) entry.syncedBy.push(childId);
+        entry.propagationRequired = false;
+        fs.writeFileSync(PROPAGATION_FILE, JSON.stringify(data, null, 2), 'utf8');
+        res.json({ success: true });
+    } catch (e) {
+        console.error('[PROPAGATION] Patch error:', e);
+        res.status(500).json({ error: 'Erreur mise à jour propagation' });
     }
 });
 
