@@ -21,7 +21,7 @@ export class AdminComponent implements OnInit {
 
   usersCount = signal(0);
   helpCount = signal(0);
-  versionStatus = signal<{ upToDate: boolean; localVersion: string; latestDeployment: any } | null>(null);
+  versionStatus = signal<any>(null);
 
   helpEditId = signal<number | null>(null);
 

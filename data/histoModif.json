@@ -24,6 +24,29 @@
       "prompt": "ok je valide la solution B et tu peux lancer les étapes de 1 à 4",
       "startedAt": "2026-04-25T00:00:00.000Z",
       "completedAt": "2026-04-25T00:00:00.000Z"
+    },
+    {
+      "id": "mod-002",
+      "version": "B0.03",
+      "date": "2026-04-25T01:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": ["frankenstein", "server"],
+      "features": "frankenstein:deployments,server:version-check",
+      "title": "Tableau dual version child/base dans admin déploiements",
+      "description": "Refonte de l'affichage du statut de version dans admin-deployments. Le composant détecte maintenant le mode 'child' (retourné par /api/version/check) et affiche un tableau à 2 lignes : version child (THI-X.XX) et version base syncée (BX.XX), chacune avec son statut indépendant et son action à effectuer. Le serveur de la base conserve le mode simple. admin.component mis à jour pour le point rouge avec les deux modes. Propagation vers child : même composant Angular + server-data.js child mis à jour pour retourner la structure duale.",
+      "files": [
+        "server/server-data.js",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html",
+        "frankenstein/src/app/pages/admin/admin.component.ts",
+        "frankenstein/src/app/pages/admin/admin.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "coté base cela à l'air bon mais coté child cela m'indique dernier deploiement BASE-B0.02 - 20260425 - Système double versioning base/child, ce qui est exact et Mise à jour requise — ce poste est en v0.00, la dernière version est vB0.02. Je ne trouve pas cela très clair. On doit bien mettre à jour la version de base sur la version child qui elle est à jour, comment pourrait on affiché ça dans un tableau et il faudrait indiqué à l'utilisateur ce qu'il doit faire pour mettre à jour la version de base ou la version child",
+      "startedAt": "2026-04-25T01:00:00.000Z",
+      "completedAt": "2026-04-25T01:00:00.000Z"
     }
   ]
 }
