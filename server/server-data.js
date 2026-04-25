@@ -4078,6 +4078,21 @@ app.get('/api/child/config/:key', (req, res) => {
     }
 });
 
+app.post('/api/child/config/:key', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
+    const key = req.params.key;
+    if (!CHILD_CONFIG_KEYS.includes(key)) return res.status(404).json({ error: 'Config introuvable' });
+    const filePath = path.join(CHILD_CONFIG_DIR, `${key}.json`);
+    try {
+        if (!fs.existsSync(CHILD_CONFIG_DIR)) fs.mkdirSync(CHILD_CONFIG_DIR, { recursive: true });
+        fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2), 'utf8');
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Erreur écriture config child' });
+    }
+});
+
 app.get('/api/admin/propagation', (req, res) => {
     const user = getSessionUser(req);
     if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });

@@ -152,6 +152,28 @@
       "prompt": "ok tu peux faire toutes les modifs dans base (qui seront répercuté ensuite dans child), l'idéal serait de regroupé tous ce qui est modifiable ou tous ce qui sera ajouté dans un repertoir spécifique dans child, afin de ne pas touché au reste, mais il faut alors que tous soi en adéquation avec le système",
       "startedAt": "2026-04-25T08:00:00.000Z",
       "completedAt": "2026-04-25T10:00:00.000Z"
+    },
+    {
+      "id": "mod-009",
+      "version": "B0.10",
+      "date": "2026-04-25T12:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": ["frankenstein", "server"],
+      "features": "frankenstein:site,server:config",
+      "title": "Couleurs Tailwind via CSS vars — thème child overridable",
+      "description": "tailwind.config.js : les 8 couleurs dark (primary, secondary, accent, accent-dark, accent-darker, background, surface, surface-light) passent de valeurs hex hardcodées à rgb(var(--tw-XXX) / <alpha-value>). styles.scss :root : ajout des 8 variables --tw-XXX avec valeurs RGB par défaut. Pink theme : override des 8 variables --tw-XXX dans .pink {}. server-data.js : ajout route POST /api/child/config/:key (admin requis) pour écriture des configs child depuis le front. Fix import nav.component.ts (chemin relatif incorrect '../../' → '../../../').",
+      "files": [
+        "frankenstein/tailwind.config.js",
+        "frankenstein/src/styles.scss",
+        "server/server-data.js",
+        "frankenstein/src/app/shared/layout/nav/nav.component.ts"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "oui",
+      "startedAt": "2026-04-25T10:00:00.000Z",
+      "completedAt": "2026-04-25T12:00:00.000Z"
     }
   ]
 }

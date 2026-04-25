@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
-import { AppConfigService } from '../../core/services/app-config.service';
+import { AppConfigService } from '../../../core/services/app-config.service';
 
 @Component({
   selector: 'app-nav',
