@@ -349,6 +349,27 @@
       "prompt": "dans la version de base on à dans admin/déploiements, les infos d'un child, on ne doit pas connaitre les childs dans la base, on à aussi en haut à droite une information de mise à jour requise alors que la base ou l'on ce trouve est bien à jour, vérifi tous ça",
       "startedAt": "2026-04-25T15:30:00.000Z",
       "completedAt": "2026-04-25T16:00:00.000Z"
+    },
+    {
+      "id": "mod-015",
+      "version": "B0.16",
+      "date": "2026-04-25T16:30:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "system"
+      ],
+      "features": "system:workflow",
+      "title": "install.bat : auto-renommage en old-install.bat après exécution",
+      "description": "Ajout d'une commande rename à la fin de install.bat. Après installation réussie des dépendances, le script se renomme automatiquement en old-install.bat pour signaler qu'il a déjà été utilisé et éviter une ré-exécution accidentelle.",
+      "files": [
+        "install.bat"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "lorsque le fichier @install.bat à été utilisé, il faudrait le renommé en old-install.bat",
+      "startedAt": "2026-04-25T16:15:00.000Z",
+      "completedAt": "2026-04-25T16:30:00.000Z"
     }
   ]
 }
