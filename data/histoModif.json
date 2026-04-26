@@ -394,6 +394,68 @@
       "prompt": "A partir de la base dans la section admin/theme pourrais tu rajouté des options de configuration des styles, comme les contours des cards (couleur, taille, arrondis), les styles des balises h, et autre",
       "startedAt": "2026-04-25T08:00:00.000Z",
       "completedAt": "2026-04-25T10:00:00.000Z"
+    },
+    {
+      "id": "mod-017",
+      "version": "B0.18",
+      "date": "2026-04-26T00:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": ["frankenstein"],
+      "features": "frankenstein:admin",
+      "title": "Admin/Thème : couleur & police titres + groupe Textes (p)",
+      "description": "Extension de la section Styles avancés dans admin/theme. Titres (h1-h4) : ajout du sélecteur de couleur (h-color) et de la police (h-font-family). Nouveau groupe Textes (p) : couleur (p-color), taille (p-size), police (p-font-family), graisse (p-weight), interligne (p-line-height). Nouveau type 'color' dans StyleSettingItem (picker HTML5 avec bouton reset). styles.scss : nouvelles variables --h-color, --h-font-family, --p-color, --p-size, --p-font-family, --p-weight, --p-line-height dans :root + règles CSS globales. Aperçu live mis à jour pour refléter couleur/police des titres et des paragraphes.",
+      "files": [
+        "frankenstein/src/styles.scss",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "système base : dans l'admin/themes je voudrais que tu rajoute des options pour la modification des cards principal qui à l'air de venir de la class .rounded-xl, et les titres h1 h2 h3 et h4 et les textes avec la balise \"p\" : couleur taille type de police, epaisseur etc",
+      "startedAt": "2026-04-26T00:00:00.000Z",
+      "completedAt": "2026-04-26T00:00:00.000Z"
+    },
+    {
+      "id": "mod-018",
+      "version": "B0.19",
+      "date": "2026-04-26T01:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": ["frankenstein"],
+      "features": "frankenstein:admin",
+      "title": "Admin/Thème : H1-H4 séparés + fix .rounded-xl + layout compact",
+      "description": "Refonte de la section Styles avancés admin/theme. (1) Headings par niveau : H1, H2, H3 et H4 ont chacun leur propre ligne avec couleur, police, graisse et espacement indépendants (variables CSS --h1-*, --h2-*, --h3-*, --h4-*). (2) Fix cards : ajout de .rounded-xl { border-radius: var(--card-radius) } et .rounded-xl.border { border-width: var(--card-border-width) } dans styles.scss pour que les paramètres admin s'appliquent aux éléments Tailwind. (3) Layout compact : tous les réglages d'un groupe sur une seule ligne (inline flex), table HTML pour les headings. Architecture : hidden group pour le traitement load/save/apply, sentinel group layout='headings' pour le rendu.",
+      "files": [
+        "frankenstein/src/styles.scss",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "je ne comprend pas ta logique, je veux la modification de h1 avec sur une ligne : la couleur, la police, l'epaisseur, espacement lettre, idem pour h2 h3 et h4, ensuite je veux les cartes et panneaux, actuellement si je change les paramètres lmes card (class : .rounded-xl), ne change pas. Si possible pour chaque element, il faut mettre les options sur une seul ligne pour avoir de la place.",
+      "startedAt": "2026-04-26T00:30:00.000Z",
+      "completedAt": "2026-04-26T01:00:00.000Z"
+    },
+    {
+      "id": "mod-019",
+      "version": "B0.20",
+      "date": "2026-04-26T10:00:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": ["frankenstein"],
+      "features": "frankenstein:admin",
+      "title": "Fix priorité CSS h1-h4 : !important pour surcharger Tailwind",
+      "description": "Les règles CSS pour h1-h4 (couleur, police, graisse, espacement) n'étaient pas appliquées car les classes Tailwind comme .text-light-text-muted et .dark:text-white/50 ont une spécificité de classe (0,1,0) supérieure au sélecteur d'élément h3 (0,0,1). Fix : ajout de !important sur toutes les propriétés des règles h1-h4 dans styles.scss pour forcer leur application. Fix parallèle : remplacement de [class.dark:border-white/5] (syntaxe invalide en Angular) par [ngClass] dans le template des headings.",
+      "files": [
+        "frankenstein/src/styles.scss",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "les style h comme h3 dans l'exemple ne sont pas pris en compte sur le site car 2 class sont prioritaire (.dark\\:text-white\\/50:is(.dark *) et .text-light-text-muted), corrige ça et verifi les autre \"h\"",
+      "startedAt": "2026-04-26T09:50:00.000Z",
+      "completedAt": "2026-04-26T10:00:00.000Z"
     }
   ]
 }
