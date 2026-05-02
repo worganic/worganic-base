@@ -558,6 +558,28 @@
       "prompt": "dans la version child tu as dans le menu admin/deploiement la liste des deploiement du child et de base, hors la il manque des infos des mise à jour requise ou non de la version en cours (child) et de la version de base. IDem on ne peux pas voir les infos détaillé en cliquant sur les mise à jour comme c est le cas sur la version de base. Verifi le fonctionnement mais attention le système en lui même doit être corrigé sur la version de base avant d être deployé dans la version child",
       "startedAt": "2026-05-02T13:00:00.000Z",
       "completedAt": "2026-05-02T20:20:00.853Z"
+    },
+    {
+      "id": "mod-023",
+      "version": "B0.24",
+      "date": "2026-05-02T20:45:27.229Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:deployments|admin",
+      "title": "Admin déploiements : colorisation ligne courante + propagation child-only",
+      "description": "Ajout de deployRowClass() dans le composant : colore en vert la ligne du déploiement actuel du child, en jaune/orange la ligne du baseSynced (mode child) ou de la version actuelle (mode base). Le panneau Propagations en attente est désormais conditionné à isChildMode — il n'apparaît pas dans la version de base. Correction de la donnée B0.21 (propagationRequired remis à false). Ajout de parseVersionNum() et filtrage dans pendingPropagations : les entrées dont baseVersion ≤ baseSynced sont masquées même si propagationRequired est vrai.",
+      "files": [
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans le menu admin/deploiement il faut mettre en couleur la ligne de l historique avec le deploiement actuel pour la base et les child (à modifié dans la version de base pour futur synchro avec les childs) dans la version de base pas besoin d indiqué les propagations en attente, juste l indiqué pour les childs",
+      "startedAt": "2026-05-02T14:00:00.000Z",
+      "completedAt": "2026-05-02T20:58:53.139Z"
     }
   ]
 }
