@@ -4562,9 +4562,9 @@ app.get('/api/version/check', async (req, res) => {
             return res.json(status);
         }
 
-        // Mode base (fallback)
+        // Mode base (fallback) — filtre uniquement les versions B* pour ignorer les déploiements children
         const localVersion = vf.base || vf.version || '0.00';
-        const [rows] = await pool.query('SELECT * FROM app_deployments ORDER BY deployed_at DESC LIMIT 1');
+        const [rows] = await pool.query('SELECT * FROM app_deployments WHERE version LIKE ? ORDER BY deployed_at DESC LIMIT 1', ['B%']);
         const latest = rows[0] || null;
         const upToDate = !latest || latest.version === localVersion;
         res.json({ upToDate, localVersion, latestDeployment: latest });
@@ -4579,7 +4579,8 @@ app.get('/api/admin/deployments', async (req, res) => {
     if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
     try {
         const [rows] = await pool.query(
-            'SELECT * FROM app_deployments ORDER BY deployed_at DESC LIMIT 50'
+            'SELECT * FROM app_deployments WHERE version LIKE ? ORDER BY deployed_at DESC LIMIT 50',
+            ['B%']
         );
         res.json(rows);
     } catch (e) {

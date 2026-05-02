@@ -513,6 +513,23 @@
       "prompt": "dans le projet child--THI-V01 je vois pleins de fichier non giter et modifié, peux tu les comparer au projet de base worganic-base. Je rappel que le projet child--THI-V01 est un projet enfant du projet de base et que les fichiers de base ne peuvent être modifié dans les projets enfants. Si les modifs dans le projet enfants sont important il faudra peut être mettre à jour le projet de base avec les fichiers du projet enfant. Compare les 2 projet et met à jour le projet de base pour que les fichiers du projet enfant child--THI-V01 ne soi plus en Changes not staged",
       "startedAt": "2026-05-02T11:30:00.000Z",
       "completedAt": "2026-05-02T12:00:00.000Z"
+    },
+    {
+      "id": "mod-021",
+      "version": "B0.22",
+      "date": "2026-05-02T12:30:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": ["server"],
+      "features": "server:deployments",
+      "title": "Fix déploiements base : ignore les versions children",
+      "description": "Correction de deux endpoints dans server-data.js : (1) /api/version/check en mode base récupérait le dernier déploiement toutes versions confondues (y compris THI-X.XX), provoquant un faux message 'Mise à jour requise'. (2) /api/admin/deployments retournait toute la table sans filtre, affichant les déploiements enfants dans la liste admin de la base. Ajout de WHERE version LIKE 'B%' sur les deux requêtes pour que le projet de base ne voie que ses propres déploiements.",
+      "files": ["server/server-data.js"],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans le projet de baser @worganic-base\\ dans le menu deploiement tu indique la version du projet enfant : Mise à jour requise — local : B0.21 / déployé : THI-0.34. Hors le projet parent ne doit pas connaitre et na pas besoin de connaitre les projets enfants, elle ne gère que son projet. Par contre les projets enfants comme le projet @child--THI-V01\\ lui doit avoir les 2 projets pour infos afin de mettre à jour avec le projet de base ou le projet enfant. Verifie le proket de base @worganic-base\\ et corrige le problème d'affichage du menu deploiement",
+      "startedAt": "2026-05-02T12:15:00.000Z",
+      "completedAt": "2026-05-02T12:30:00.000Z"
     }
   ]
 }
