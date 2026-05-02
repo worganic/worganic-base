@@ -91,7 +91,7 @@ app.use(cors({
         // Ajouter l'URL de prod ici quand disponible :
         // 'https://app.worganic.com'
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -3989,31 +3989,582 @@ app.delete('/api/frank/projects/:id/steps/:stepId', async (req, res) => {
 });
 
 // ============================================================
+// File-based Projects (data/projets/)
+// ============================================================
+
+const PROJECTS_DIR = path.join(BASE_DIR, 'projets');
+const CONVERSATIONS_DIR = path.join(PROJECTS_DIR, 'conversations');
+
+if (!fs.existsSync(CONVERSATIONS_DIR)) {
+    fs.mkdirSync(CONVERSATIONS_DIR, { recursive: true });
+}
+
+function slugify(text) {
+    return text.toString().toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+        .replace(/-+/g, '-').trim();
+}
+
+function getProjectConfig(projectName) {
+    const cfgPath = path.join(PROJECTS_DIR, projectName, 'config.json');
+    if (!fs.existsSync(cfgPath)) return null;
+    try {
+        const config = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+        
+        // Nettoyage des doublons (même nom et type au même niveau)
+        function cleanStructure(items) {
+            if (!items) return [];
+            const seen = new Set();
+            const cleaned = [];
+            for (const item of items) {
+                const key = `${item.type}:${item.name.toLowerCase()}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    if (item.type === 'folder' && item.children) {
+                        item.children = cleanStructure(item.children);
+                    }
+                    cleaned.push(item);
+                }
+            }
+            return cleaned;
+        }
+        if (config.structure) {
+            config.structure = cleanStructure(config.structure);
+        }
+        
+        return config;
+    } catch { return null; }
+}
+
+function saveProjectConfig(projectName, config) {
+    config.updatedAt = new Date().toISOString();
+    fs.writeFileSync(path.join(PROJECTS_DIR, projectName, 'config.json'), JSON.stringify(config, null, 2), 'utf8');
+}
+
+function findNodeById(items, id) {
+    for (const item of items) {
+        if (item.id === id) return item;
+        if (item.children) { const f = findNodeById(item.children, id); if (f) return f; }
+    }
+    return null;
+}
+
+function removeNodeById(items, id) {
+    const idx = items.findIndex(i => i.id === id);
+    if (idx !== -1) { items.splice(idx, 1); return true; }
+    for (const item of items) {
+        if (item.children && removeNodeById(item.children, id)) return true;
+    }
+    return false;
+}
+
+function isImageFile(name) {
+    return /\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(name);
+}
+
+function attachContent(projectName, items) {
+    const sortedItems = [...items].sort((a, b) => (a.order || 0) - (b.order || 0));
+    return sortedItems.map(item => {
+        if (item.type === 'file') {
+            if (isImageFile(item.name)) return { ...item, content: '', fileType: 'image' };
+            const full = path.join(PROJECTS_DIR, projectName, item.path);
+            return { ...item, content: fs.existsSync(full) ? fs.readFileSync(full, 'utf8') : '', fileType: 'text' };
+        }
+        return { ...item, children: attachContent(projectName, item.children || []) };
+    });
+}
+
+function safeProjectPath(projectName, filePath) {
+    const base = path.resolve(path.join(PROJECTS_DIR, projectName));
+    const full = path.resolve(path.join(base, filePath));
+    if (!full.startsWith(base + path.sep) && full !== base) return null;
+    return full;
+}
+
+// GET /api/projects
+app.get('/api/file-projects', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    try {
+        if (!fs.existsSync(PROJECTS_DIR)) return res.json([]);
+        const dirs = fs.readdirSync(PROJECTS_DIR, { withFileTypes: true })
+            .filter(d => d.isDirectory())
+            .map(d => {
+                const cfg = getProjectConfig(d.name);
+                return { name: d.name, projectName: cfg?.projectName || d.name, createdAt: cfg?.createdAt, updatedAt: cfg?.updatedAt };
+            });
+        res.json(dirs);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/projects
+app.post('/api/file-projects', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const { projectName, folderName } = req.body;
+    if (!projectName) return res.status(400).json({ error: 'Nom requis' });
+    const dir = folderName || slugify(projectName);
+    if (!dir) return res.status(400).json({ error: 'Nom invalide' });
+    const projectDir = path.join(PROJECTS_DIR, dir);
+    if (fs.existsSync(projectDir)) return res.status(409).json({ error: 'Projet déjà existant' });
+    try {
+        fs.mkdirSync(projectDir, { recursive: true });
+        const config = { projectName, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), structure: [] };
+        fs.writeFileSync(path.join(projectDir, 'config.json'), JSON.stringify(config, null, 2));
+        res.status(201).json({ name: dir, ...config });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/projects/:name
+app.get('/api/file-projects/:name', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    res.json(config);
+});
+
+// DELETE /api/projects/:name
+app.delete('/api/file-projects/:name', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const projectDir = path.join(PROJECTS_DIR, req.params.name);
+    if (!fs.existsSync(projectDir)) return res.status(404).json({ error: 'Projet non trouvé' });
+    try {
+        fs.rmSync(projectDir, { recursive: true, force: true });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/projects/:name/files
+app.get('/api/file-projects/:name/files', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    try {
+        res.json({ success: true, project: config.projectName, files: attachContent(req.params.name, config.structure || []) });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/projects/:name/files
+app.post('/api/file-projects/:name/files', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const { name, parentId, content } = req.body;
+    if (!name) return res.status(400).json({ error: 'Nom requis' });
+    try {
+        const fileName = name.endsWith('.md') ? name : `${name}.md`;
+        let filePath;
+        let parentItems = config.structure;
+        if (parentId) {
+            const parent = findNodeById(config.structure, parentId);
+            if (!parent || parent.type !== 'folder') return res.status(400).json({ error: 'Dossier parent invalide' });
+            filePath = `${parent.path}/${fileName}`;
+            parent.children = parent.children || [];
+            parentItems = parent.children;
+        } else {
+            filePath = fileName;
+        }
+
+        // Éviter les doublons dans config.structure
+        const existing = parentItems.find(i => i.name.toLowerCase() === fileName.toLowerCase());
+        if (existing) {
+            if (existing.type !== 'file') return res.status(409).json({ error: 'Un dossier porte déjà ce nom' });
+            // Si c'est le même fichier, on met juste à jour le contenu
+            const full = safeProjectPath(req.params.name, existing.path);
+            if (full) fs.writeFileSync(full, content || '', 'utf8');
+            return res.status(200).json({ ...existing, content: content || '' });
+        }
+
+        const full = safeProjectPath(req.params.name, filePath);
+        if (!full) return res.status(400).json({ error: 'Chemin invalide' });
+        fs.mkdirSync(path.dirname(full), { recursive: true });
+        fs.writeFileSync(full, content || '', 'utf8');
+        const newFile = { id: crypto.randomUUID(), type: 'file', name: fileName, path: filePath, order: parentItems.length + 1 };
+        parentItems.push(newFile);
+        
+        saveProjectConfig(req.params.name, config);
+        res.status(201).json({ ...newFile, content: content || '' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PUT /api/projects/:name/files/:id
+app.put('/api/file-projects/:name/files/:id', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const item = findNodeById(config.structure, req.params.id);
+    if (!item || item.type !== 'file') return res.status(404).json({ error: 'Fichier non trouvé' });
+    try {
+        const full = safeProjectPath(req.params.name, item.path);
+        if (!full) return res.status(400).json({ error: 'Chemin invalide' });
+        fs.mkdirSync(path.dirname(full), { recursive: true });
+        fs.writeFileSync(full, req.body.content ?? '', 'utf8');
+        saveProjectConfig(req.params.name, config);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PATCH /api/projects/:name/files/:id (rename)
+app.patch('/api/file-projects/:name/files/:id', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const item = findNodeById(config.structure, req.params.id);
+    if (!item || item.type !== 'file') return res.status(404).json({ error: 'Fichier non trouvé' });
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: 'Nom requis' });
+    try {
+        const imageExtRe = /\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i;
+        const isImage = imageExtRe.test(item.name);
+        let newName;
+        if (isImage) {
+            const ext = path.extname(item.name);
+            newName = imageExtRe.test(name) ? name : name + ext;
+        } else {
+            newName = name.endsWith('.md') ? name : `${name}.md`;
+        }
+        
+        // Vérifier si un autre fichier porte déjà ce nom dans le même parent
+        // (Simplification: on cherche dans toute la structure car on n'a pas facilement le parent ici, 
+        // mais findNodeById pourrait être adapté ou on pourrait chercher le parent d'abord)
+        
+        const oldFull = safeProjectPath(req.params.name, item.path);
+        const newPath = item.path.replace(/[^/\\]+$/, newName);
+        const newFull = safeProjectPath(req.params.name, newPath);
+        if (!oldFull || !newFull) return res.status(400).json({ error: 'Chemin invalide' });
+        if (fs.existsSync(oldFull)) fs.renameSync(oldFull, newFull);
+        item.name = newName; item.path = newPath;
+        saveProjectConfig(req.params.name, config);
+        res.json(item);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /api/projects/:name/files/:id
+app.delete('/api/file-projects/:name/files/:id', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const item = findNodeById(config.structure, req.params.id);
+    if (!item || item.type !== 'file') return res.status(404).json({ error: 'Fichier non trouvé' });
+    try {
+        const full = safeProjectPath(req.params.name, item.path);
+        if (full && fs.existsSync(full)) fs.unlinkSync(full);
+        removeNodeById(config.structure, req.params.id);
+        saveProjectConfig(req.params.name, config);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/projects/:name/folders
+app.post('/api/file-projects/:name/folders', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const { name, parentId } = req.body;
+    if (!name) return res.status(400).json({ error: 'Nom requis' });
+    try {
+        const slug = slugify(name) || name.replace(/\s+/g, '-').toLowerCase();
+        let folderPath;
+        let parentItems = config.structure;
+        if (parentId) {
+            const parent = findNodeById(config.structure, parentId);
+            if (!parent || parent.type !== 'folder') return res.status(400).json({ error: 'Dossier parent invalide' });
+            folderPath = `${parent.path}/${slug}`;
+            parent.children = parent.children || [];
+            parentItems = parent.children;
+        } else {
+            folderPath = slug;
+        }
+
+        // Éviter les doublons
+        const existing = parentItems.find(i => i.type === 'folder' && (i.name.toLowerCase() === name.toLowerCase() || i.path === folderPath));
+        if (existing) {
+            return res.status(200).json(existing);
+        }
+
+        const full = safeProjectPath(req.params.name, folderPath);
+        if (!full) return res.status(400).json({ error: 'Chemin invalide' });
+        fs.mkdirSync(full, { recursive: true });
+        const contentPath = `${folderPath}/contenu.md`;
+        fs.writeFileSync(safeProjectPath(req.params.name, contentPath), '', 'utf8');
+        const newFolder = {
+            id: crypto.randomUUID(), type: 'folder', name, path: folderPath, order: parentItems.length + 1,
+            children: [{ id: crypto.randomUUID(), type: 'file', name: 'contenu.md', path: contentPath, order: 1 }]
+        };
+        parentItems.push(newFolder);
+        
+        saveProjectConfig(req.params.name, config);
+        res.status(201).json(newFolder);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PATCH /api/projects/:name/folders/:id (rename)
+app.patch('/api/file-projects/:name/folders/:id', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const item = findNodeById(config.structure, req.params.id);
+    if (!item || item.type !== 'folder') return res.status(404).json({ error: 'Dossier non trouvé' });
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: 'Nom requis' });
+    try {
+        const newSlug = slugify(name) || name.replace(/\s+/g, '-').toLowerCase();
+        const oldPath = item.path;
+        const newPath = oldPath.includes('/') ? oldPath.replace(/[^/]+$/, newSlug) : newSlug;
+        const oldFull = safeProjectPath(req.params.name, oldPath);
+        const newFull = safeProjectPath(req.params.name, newPath);
+        if (!oldFull || !newFull) return res.status(400).json({ error: 'Chemin invalide' });
+        
+        // Si le nouveau chemin existe déjà et que c'est un autre ID, on a un conflit
+        // Mais si c'est le même ID, c'est juste un renommage qui peut être déjà fait sur disque
+        if (oldFull !== newFull && fs.existsSync(oldFull)) {
+            fs.renameSync(oldFull, newFull);
+        } else if (!fs.existsSync(newFull)) {
+             fs.mkdirSync(newFull, { recursive: true });
+        }
+
+        function updateNodePaths(node, from, to) {
+            node.path = node.path.startsWith(from + '/') ? to + node.path.slice(from.length) : (node.path === from ? to : node.path);
+            if (node.children) node.children.forEach(c => updateNodePaths(c, from, to));
+        }
+        updateNodePaths(item, oldPath, newPath);
+        item.name = name;
+        saveProjectConfig(req.params.name, config);
+        res.json(item);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /api/projects/:name/folders/:id
+app.delete('/api/file-projects/:name/folders/:id', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const item = findNodeById(config.structure, req.params.id);
+    if (!item || item.type !== 'folder') return res.status(404).json({ error: 'Dossier non trouvé' });
+    try {
+        const full = safeProjectPath(req.params.name, item.path);
+        if (full && fs.existsSync(full)) fs.rmSync(full, { recursive: true, force: true });
+        removeNodeById(config.structure, req.params.id);
+        saveProjectConfig(req.params.name, config);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PUT /api/projects/:name/structure
+app.put('/api/file-projects/:name/structure', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    try {
+        config.structure = req.body.structure;
+        saveProjectConfig(req.params.name, config);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/projects/:name/move-file
+app.post('/api/file-projects/:name/move-file', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const { fileId, targetFolderId } = req.body;
+    try {
+        const item = findNodeById(config.structure, fileId);
+        if (!item) return res.status(404).json({ error: 'Élément non trouvé' });
+        removeNodeById(config.structure, fileId);
+        const oldFull = safeProjectPath(req.params.name, item.path);
+        if (targetFolderId) {
+            const target = findNodeById(config.structure, targetFolderId);
+            if (!target) return res.status(404).json({ error: 'Dossier cible non trouvé' });
+            if (target.type !== 'folder') return res.status(400).json({ error: 'La cible doit être un dossier' });
+
+            // Éviter les doublons de nom dans le dossier cible
+            if ((target.children || []).some(c => c.type === 'file' && c.name.toLowerCase() === item.name.toLowerCase())) {
+                return res.status(400).json({ error: `Un fichier nommé "${item.name}" existe déjà dans le dossier cible` });
+            }
+
+            const newPath = `${target.path}/${item.name}`;
+            const newFull = safeProjectPath(req.params.name, newPath);
+            if (oldFull && newFull && fs.existsSync(oldFull)) {
+                fs.mkdirSync(path.dirname(newFull), { recursive: true });
+                fs.renameSync(oldFull, newFull);
+            }
+            item.path = newPath;
+            target.children = target.children || [];
+            target.children.push(item);
+        } else {
+            const newPath = item.name;
+            const newFull = safeProjectPath(req.params.name, newPath);
+            if (oldFull && newFull && fs.existsSync(oldFull)) {
+                fs.mkdirSync(path.dirname(newFull), { recursive: true });
+                fs.renameSync(oldFull, newFull);
+            }
+            item.path = newPath;
+            config.structure.push(item);
+        }
+        saveProjectConfig(req.params.name, config);
+        res.json({ success: true, item });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/file-projects/:name/upload-image
+app.post('/api/file-projects/:name/upload-image', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const { name: fileName, parentId, data, mimeType } = req.body;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp'];
+    if (!allowedTypes.includes(mimeType)) return res.status(400).json({ error: 'Type non autorisé (jpg, png, gif, webp, svg uniquement)' });
+    try {
+        const buffer = Buffer.from(data, 'base64');
+        if (buffer.length > 1024 * 1024) return res.status(400).json({ error: 'Fichier trop grand — maximum 1 Mo' });
+        const extMap = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp', 'image/svg+xml': 'svg', 'image/bmp': 'bmp' };
+        const ext = extMap[mimeType] || 'jpg';
+        const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.[^.]+$/, '') + '.' + ext;
+        let parentItems = config.structure;
+        let filePath = safeName;
+        if (parentId) {
+            const parent = findNodeById(config.structure, parentId);
+            if (!parent || parent.type !== 'folder') return res.status(400).json({ error: 'Dossier parent invalide' });
+            filePath = parent.path + '/' + safeName;
+            parentItems = parent.children = parent.children || [];
+        }
+        const fullPath = safeProjectPath(req.params.name, filePath);
+        if (!fullPath) return res.status(400).json({ error: 'Chemin invalide' });
+        fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+        fs.writeFileSync(fullPath, buffer);
+        const maxOrder = parentItems.filter(n => n.type === 'file').reduce((m, n) => Math.max(m, n.order || 0), 0);
+        const newNode = { id: require('crypto').randomUUID(), type: 'file', name: safeName, path: filePath, order: maxOrder + 1, fileType: 'image' };
+        parentItems.push(newNode);
+        saveProjectConfig(req.params.name, config);
+        res.status(201).json(newNode);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/file-projects/:name/move-folder
+app.post('/api/file-projects/:name/move-folder', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    const config = getProjectConfig(req.params.name);
+    if (!config) return res.status(404).json({ error: 'Projet non trouvé' });
+    const { folderId, targetParentId } = req.body;
+    try {
+        const folder = findNodeById(config.structure, folderId);
+        if (!folder || folder.type !== 'folder') return res.status(404).json({ error: 'Dossier non trouvé' });
+
+        // Prevent moving into itself or its own descendants
+        if (targetParentId === folderId) return res.status(400).json({ error: 'Déplacement invalide' });
+        const isDesc = (node, id) => !!(node.children || []).some(c => c.id === id || isDesc(c, id));
+        if (targetParentId && isDesc(folder, targetParentId)) return res.status(400).json({ error: 'Le dossier cible est un descendant' });
+
+        const oldPath = folder.path;
+        const oldFull = safeProjectPath(req.params.name, oldPath);
+
+        // Remove from current position in JSON
+        removeNodeById(config.structure, folderId);
+
+        // Determine new path and insertion point
+        let newPath;
+        let targetItems;
+        if (targetParentId) {
+            const target = findNodeById(config.structure, targetParentId);
+            if (!target || target.type !== 'folder') return res.status(400).json({ error: 'Dossier cible invalide' });
+
+            // Éviter les doublons de nom dans le dossier cible
+            if ((target.children || []).some(c => c.type === 'folder' && c.name.toLowerCase() === folder.name.toLowerCase())) {
+                return res.status(400).json({ error: `Un dossier nommé "${folder.name}" existe déjà dans le dossier cible` });
+            }
+
+            newPath = target.path + '/' + folder.name;
+            target.children = target.children || [];
+            targetItems = target.children;
+        } else {
+            // Éviter les doublons à la racine
+            if (config.structure.some(c => c.type === 'folder' && c.name.toLowerCase() === folder.name.toLowerCase())) {
+                return res.status(400).json({ error: `Un dossier nommé "${folder.name}" existe déjà à la racine` });
+            }
+            newPath = folder.name;
+            targetItems = config.structure;
+        }
+
+        // Move on filesystem
+        const newFull = safeProjectPath(req.params.name, newPath);
+        if (oldFull && newFull && fs.existsSync(oldFull)) {
+            fs.mkdirSync(path.dirname(newFull), { recursive: true });
+            fs.renameSync(oldFull, newFull);
+        }
+
+        // Update paths recursively inside the moved folder node
+        function updatePaths(node, oldBase, newBase) {
+            if (node.path === oldBase) node.path = newBase;
+            else if (node.path && node.path.startsWith(oldBase + '/')) node.path = newBase + node.path.slice(oldBase.length);
+            (node.children || []).forEach(c => updatePaths(c, oldBase, newBase));
+        }
+        updatePaths(folder, oldPath, newPath);
+
+        // Set order at end of target level
+        const maxOrder = targetItems.filter(n => n.type === 'folder').reduce((m, n) => Math.max(m, n.order || 0), 0);
+        folder.order = maxOrder + 1;
+        targetItems.push(folder);
+
+        saveProjectConfig(req.params.name, config);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ============================================================
 // Version / Déploiements
 // ============================================================
 
 const VERSION_FILE = path.join(PROJECT_ROOT, 'version.json');
 
-function getLocalVersionInfo() {
-    if (!fs.existsSync(VERSION_FILE)) return { localVersion: '0.00', versionPrefix: '' };
-    try {
-        let raw = fs.readFileSync(VERSION_FILE, 'utf8');
-        if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
-        const vf = JSON.parse(raw);
-        const localVersion = vf.base || vf.child || vf.version || '0.00';
-        const match = localVersion.match(/^[A-Za-z-]+/);
-        const versionPrefix = match ? match[0] : '';
-        return { localVersion, versionPrefix };
-    } catch { return { localVersion: '0.00', versionPrefix: '' }; }
-}
-
 app.get('/api/version/check', async (req, res) => {
     try {
-        const { localVersion, versionPrefix } = getLocalVersionInfo();
-        const [rows] = await pool.query(
-            'SELECT * FROM app_deployments WHERE version LIKE ? ORDER BY deployed_at DESC LIMIT 1',
-            [versionPrefix + '%']
-        );
+        let vf = {};
+        if (fs.existsSync(VERSION_FILE)) {
+            let raw = fs.readFileSync(VERSION_FILE, 'utf8');
+            if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1); // strip BOM
+            vf = JSON.parse(raw);
+        }
+
+        // Mode child : version.json contient le champ "child"
+        if (vf.child) {
+            const localChild = vf.child;
+            const localBaseSynced = vf.baseSynced || null;
+            const childId = vf.childId || 'child';
+            const prefix = localChild.split('-')[0] + '-'; // ex: "THI-"
+
+            const [[latestChildRow], [latestBaseRow]] = await Promise.all([
+                pool.query('SELECT * FROM app_deployments WHERE version LIKE ? ORDER BY deployed_at DESC LIMIT 1', [prefix + '%']),
+                pool.query('SELECT * FROM app_deployments WHERE version LIKE ? ORDER BY deployed_at DESC LIMIT 1', ['B%'])
+            ]);
+            const latestChild = latestChildRow[0] || null;
+            const latestBase = latestBaseRow[0] || null;
+
+            const childUpToDate = !latestChild || latestChild.version === localChild;
+            const baseUpToDate = !latestBase || !localBaseSynced || latestBase.version === localBaseSynced;
+
+            const status = { mode: 'child', childId, child: { upToDate: childUpToDate, localVersion: localChild, latestDeployment: latestChild }, base: { upToDate: baseUpToDate, localVersion: localBaseSynced, latestVersion: latestBase?.version || null, latestDeployment: latestBase } };
+            return res.json(status);
+        }
+
+        // Mode base (fallback)
+        const localVersion = vf.base || vf.version || '0.00';
+        const [rows] = await pool.query('SELECT * FROM app_deployments ORDER BY deployed_at DESC LIMIT 1');
         const latest = rows[0] || null;
         const upToDate = !latest || latest.version === localVersion;
         res.json({ upToDate, localVersion, latestDeployment: latest });
@@ -4027,10 +4578,8 @@ app.get('/api/admin/deployments', async (req, res) => {
     const user = getSessionUser(req);
     if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
     try {
-        const { versionPrefix } = getLocalVersionInfo();
         const [rows] = await pool.query(
-            'SELECT * FROM app_deployments WHERE version LIKE ? ORDER BY deployed_at DESC LIMIT 50',
-            [versionPrefix + '%']
+            'SELECT * FROM app_deployments ORDER BY deployed_at DESC LIMIT 50'
         );
         res.json(rows);
     } catch (e) {
@@ -4062,15 +4611,19 @@ app.post('/api/admin/deployments', async (req, res) => {
                 features || ''
             ]
         );
-        fs.writeFileSync(VERSION_FILE, JSON.stringify({ base: version }, null, 2), 'utf8');
+        const existingVf = fs.existsSync(VERSION_FILE) ? JSON.parse(fs.readFileSync(VERSION_FILE, 'utf8')) : {};
+        if (existingVf.child !== undefined) {
+            existingVf.child = version;
+            fs.writeFileSync(VERSION_FILE, JSON.stringify(existingVf, null, 2), 'utf8');
+        } else {
+            fs.writeFileSync(VERSION_FILE, JSON.stringify({ base: version }, null, 2), 'utf8');
+        }
         res.json({ success: true });
     } catch (e) {
         console.error('[DEPLOYMENTS] Create error:', e);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
-
-const PROPAGATION_FILE = path.join(PROJECT_ROOT, 'data', 'base-propagation.json');
 
 // ── Child config (data/child/*.json) ─────────────────────────────────────────
 const CHILD_CONFIG_DIR  = path.join(PROJECT_ROOT, 'data', 'child');
@@ -4123,43 +4676,6 @@ app.post('/api/child/css', (req, res) => {
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: 'Erreur écriture CSS custom' });
-    }
-});
-
-app.get('/api/admin/propagation', (req, res) => {
-    const user = getSessionUser(req);
-    if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
-    try {
-        const data = fs.existsSync(PROPAGATION_FILE)
-            ? JSON.parse(fs.readFileSync(PROPAGATION_FILE, 'utf8'))
-            : { entries: [] };
-        res.json(data.entries || []);
-    } catch (e) {
-        console.error('[PROPAGATION] Read error:', e);
-        res.status(500).json({ error: 'Erreur lecture propagation' });
-    }
-});
-
-app.patch('/api/admin/propagation/:baseVersion', (req, res) => {
-    const user = getSessionUser(req);
-    if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin requis' });
-    const { baseVersion } = req.params;
-    const { childId } = req.body;
-    if (!childId) return res.status(400).json({ error: 'childId requis' });
-    try {
-        const data = fs.existsSync(PROPAGATION_FILE)
-            ? JSON.parse(fs.readFileSync(PROPAGATION_FILE, 'utf8'))
-            : { entries: [] };
-        const entry = (data.entries || []).find(e => e.baseVersion === baseVersion);
-        if (!entry) return res.status(404).json({ error: 'Entrée non trouvée' });
-        if (!entry.syncedBy) entry.syncedBy = [];
-        if (!entry.syncedBy.includes(childId)) entry.syncedBy.push(childId);
-        entry.propagationRequired = false;
-        fs.writeFileSync(PROPAGATION_FILE, JSON.stringify(data, null, 2), 'utf8');
-        res.json({ success: true });
-    } catch (e) {
-        console.error('[PROPAGATION] Patch error:', e);
-        res.status(500).json({ error: 'Erreur mise à jour propagation' });
     }
 });
 
@@ -4443,6 +4959,87 @@ app.delete('/api/documents/:id', async (req, res) => {
     } catch (e) {
         console.error('[DOCS] Delete error:', e);
         res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// ============================================================
+// ROUTES: Conversations (Zone 5)
+// ============================================================
+
+// GET /api/conversations/:sectionId
+app.get('/api/conversations/:sectionId', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    
+    const sectionId = req.params.sectionId;
+    const filePath = path.join(CONVERSATIONS_DIR, `${sectionId}.json`);
+    
+    try {
+        if (!fs.existsSync(filePath)) {
+            return res.json({ sectionId, messages: [] });
+        }
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        res.json(data);
+    } catch (e) {
+        res.status(500).json({ error: 'Erreur lors de la lecture de la conversation' });
+    }
+});
+
+// GET /api/conversations-list
+app.get('/api/conversations-list', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    
+    try {
+        if (!fs.existsSync(CONVERSATIONS_DIR)) {
+            return res.json([]);
+        }
+        const files = fs.readdirSync(CONVERSATIONS_DIR);
+        // Retourne la liste des IDs (nom du fichier sans .json)
+        const ids = files
+            .filter(f => f.endsWith('.json'))
+            .map(f => f.replace('.json', ''));
+        res.json(ids);
+    } catch (e) {
+        res.status(500).json({ error: 'Erreur lors de la récupération de la liste des conversations' });
+    }
+});
+
+// POST /api/conversations/:sectionId
+app.post('/api/conversations/:sectionId', (req, res) => {
+    const user = getSessionUser(req);
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    
+    const sectionId = req.params.sectionId;
+    const { text } = req.body;
+    
+    if (!text) return res.status(400).json({ error: 'Texte requis' });
+    
+    const filePath = path.join(CONVERSATIONS_DIR, `${sectionId}.json`);
+    
+    try {
+        if (!fs.existsSync(CONVERSATIONS_DIR)) {
+            fs.mkdirSync(CONVERSATIONS_DIR, { recursive: true });
+        }
+
+        let data = { sectionId, messages: [] };
+        if (fs.existsSync(filePath)) {
+            data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        }
+        
+        const newMessage = {
+            user: user.username,
+            userId: user.id,
+            text,
+            timestamp: new Date().toISOString()
+        };
+        
+        data.messages.push(newMessage);
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+        
+        res.status(201).json(newMessage);
+    } catch (e) {
+        res.status(500).json({ error: 'Erreur lors de la sauvegarde du message' });
     }
 });
 

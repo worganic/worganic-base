@@ -1,0 +1,51 @@
+@if (loading()) {
+  <div class="flex items-center justify-center h-[60vh]">
+    <span class="material-symbols-outlined text-4xl text-light-primary dark:text-primary animate-spin">progress_activity</span>
+  </div>
+}
+
+@if (!loading()) {
+  <div class="fixed inset-0 flex flex-col bg-white dark:bg-[#0f0f17] overflow-hidden">
+
+    <app-projet-toolbar
+      [projectTitle]="projectTitle"
+      [isDirty]="saveStatus() === 'saving'"
+      (save)="onRefresh()" />
+
+    <div class="flex flex-1 overflow-hidden pb-[72px]">
+
+      <app-projet-sidebar #sidebar
+        [projectName]="project()?.id || ''"
+        [projectTitle]="projectTitle"
+        [files]="files()"
+        [activeFileId]="activeNodeId()"
+        (fileSelect)="onNodeSelect($event)"
+        (folderCreated)="onFolderCreated($event)"
+        (dragDrop)="onDragDrop($event)"
+        (refresh)="onRefresh()" />
+
+      <app-projet-editor-zone
+        [files]="files()"
+        [scrollToNodeId]="scrollToNodeId()"
+        [saveStatus]="saveStatus()"
+        [projectName]="project()?.id || ''"
+        [activeNodeId]="activeNodeId()"
+        (fileSave)="onFileSave($event)"
+        (sectionsChange)="onSectionsChange($event)"
+        (nodeActive)="onNodeActive($event)"
+        (dragDrop)="onDragDrop($event)"
+        (refresh)="onRefresh()" />
+
+      <app-projet-conversation 
+        [sectionId]="activeNodeId()" 
+        (conversationAdded)="sidebar.loadConversations()" />
+
+    </div>
+
+    <app-projet-statusbar
+      class="absolute bottom-10 left-0 right-0 z-20"
+      [status]="statusLabel"
+      [isDirty]="saveStatus() === 'saving'" />
+
+  </div>
+}

@@ -1,3 +1,38 @@
 {
-  "cssVars": {}
+  "cssVars": {
+    "--tw-primary": "253 230 138",
+    "--tw-secondary": "252 211 77",
+    "--tw-accent": "245 158 11",
+    "--tw-accent-dark": "217 119 6",
+    "--tw-accent-darker": "180 83 9",
+    "--tw-background": "10 8 2",
+    "--tw-surface": "20 15 4",
+    "--tw-surface-light": "28 22 6"
+  },
+  "styleSettings": {
+    "card-radius": 0,
+    "card-border-width": 1,
+    "h1-color": "#e7d140",
+    "h1-font-family": "inherit",
+    "h1-weight": "700",
+    "h1-letter-spacing": -1,
+    "h2-color": "#c4e665",
+    "h2-font-family": "inherit",
+    "h2-weight": "700",
+    "h2-letter-spacing": -2,
+    "h3-color": "#56d275",
+    "h3-font-family": "inherit",
+    "h3-weight": "700",
+    "h3-letter-spacing": -3,
+    "h4-color": "#64f2ce",
+    "h4-font-family": "inherit",
+    "h4-weight": "700",
+    "h4-letter-spacing": -5,
+    "p-color": "",
+    "p-size": 0,
+    "p-font-family": "inherit",
+    "p-weight": "inherit",
+    "p-line-height": 16,
+    "input-radius": 15
+  }
 }
