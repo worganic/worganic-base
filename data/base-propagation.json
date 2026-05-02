@@ -111,6 +111,22 @@
         "server/server-data.js"
       ],
       "propagationNote": "Copier tout le dossier frankenstein/src/app/pages/user/projet-editor/ depuis la base. Ajouter conversation.service.ts et project-files.service.ts dans core/services/. Mettre à jour server-data.js (routes /api/conversations et /api/file-projects). Mettre à jour admin.component et admin-theme. Mettre à jour electron/ et packages."
+    },
+    {
+      "baseVersion": "B0.23",
+      "date": "2026-05-02T20:36:09.747Z",
+      "modRef": "mod-022",
+      "title": "Admin deploy : routes propagation + query mode-aware",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "server/server-data.js",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"
+      ],
+      "propagationNote": "Copier server-data.js (GET /api/admin/deployments mode-aware + routes GET/PATCH /api/admin/propagation). Copier admin-deployments.component.ts et .html. Copier data/base-propagation.json dans le child."
     }
   ]
 }

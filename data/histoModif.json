@@ -520,16 +520,44 @@
       "date": "2026-05-02T12:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
-      "scope": ["server"],
+      "scope": [
+        "server"
+      ],
       "features": "server:deployments",
       "title": "Fix déploiements base : ignore les versions children",
       "description": "Correction de deux endpoints dans server-data.js : (1) /api/version/check en mode base récupérait le dernier déploiement toutes versions confondues (y compris THI-X.XX), provoquant un faux message 'Mise à jour requise'. (2) /api/admin/deployments retournait toute la table sans filtre, affichant les déploiements enfants dans la liste admin de la base. Ajout de WHERE version LIKE 'B%' sur les deux requêtes pour que le projet de base ne voie que ses propres déploiements.",
-      "files": ["server/server-data.js"],
+      "files": [
+        "server/server-data.js"
+      ],
       "ai": "Claude Code",
       "model": "claude-sonnet-4-6",
       "prompt": "dans le projet de baser @worganic-base\\ dans le menu deploiement tu indique la version du projet enfant : Mise à jour requise — local : B0.21 / déployé : THI-0.34. Hors le projet parent ne doit pas connaitre et na pas besoin de connaitre les projets enfants, elle ne gère que son projet. Par contre les projets enfants comme le projet @child--THI-V01\\ lui doit avoir les 2 projets pour infos afin de mettre à jour avec le projet de base ou le projet enfant. Verifie le proket de base @worganic-base\\ et corrige le problème d'affichage du menu deploiement",
       "startedAt": "2026-05-02T12:15:00.000Z",
       "completedAt": "2026-05-02T12:30:00.000Z"
+    },
+    {
+      "id": "mod-022",
+      "version": "B0.23",
+      "date": "2026-05-02T20:20:00.853Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "server",
+        "frankenstein"
+      ],
+      "features": "server,frankenstein:deployments|admin",
+      "title": "Admin déploiements : routes propagation + query mode-aware",
+      "description": "Correction de GET /api/admin/deployments pour être mode-aware (en mode child retourne tous les déploiements child+base, en mode base filtre uniquement B*). Ajout des routes manquantes GET /api/admin/propagation (lecture base-propagation.json) et PATCH /api/admin/propagation/:baseVersion (marquer une propagation comme traitée). Ces routes étaient appelées par le composant admin-deployments mais inexistantes côté serveur.",
+      "files": [
+        "server/server-data.js",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans la version child tu as dans le menu admin/deploiement la liste des deploiement du child et de base, hors la il manque des infos des mise à jour requise ou non de la version en cours (child) et de la version de base. IDem on ne peux pas voir les infos détaillé en cliquant sur les mise à jour comme c est le cas sur la version de base. Verifi le fonctionnement mais attention le système en lui même doit être corrigé sur la version de base avant d être deployé dans la version child",
+      "startedAt": "2026-05-02T13:00:00.000Z",
+      "completedAt": "2026-05-02T20:20:00.853Z"
     }
   ]
 }
