@@ -580,6 +580,26 @@
       "prompt": "dans le menu admin/deploiement il faut mettre en couleur la ligne de l historique avec le deploiement actuel pour la base et les child (à modifié dans la version de base pour futur synchro avec les childs) dans la version de base pas besoin d indiqué les propagations en attente, juste l indiqué pour les childs",
       "startedAt": "2026-05-02T14:00:00.000Z",
       "completedAt": "2026-05-02T20:58:53.139Z"
+    },
+    {
+      "id": "mod-024",
+      "version": "B0.25",
+      "date": "2026-05-02T21:30:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": ["frankenstein"],
+      "features": "frankenstein:deployments|admin",
+      "title": "Header : fix bannière MAJ toujours visible + liens vers admin?tab=deploiement",
+      "description": "Fix 1 : En mode child, l'API /api/version/check retourne { mode:'child', child:{...}, base:{...} } alors que le signal versionStatus attend { upToDate, localVersion, latestDeployment }. La réponse non normalisée faisait que upToDate était undefined (falsy), déclenchant toujours la bannière 'Mise à jour requise' avec 'v → v'. Correction dans checkVersion() : si data.mode === 'child', on normalise vers la structure attendue (upToDate = child.upToDate && base.upToDate). Fix 2 : Les deux liens de la bannière pointaient vers /deployments (route inexistante fonctionnelle) au lieu de /admin?tab=deploiement.",
+      "files": [
+        "frankenstein/src/app/shared/layout/header/header.component.ts",
+        "frankenstein/src/app/shared/layout/header/header.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans la version child on à une information Mise à jour requise [Image #1], alors que la version est bien à jour : [Image #2], autre problème lorsqu'on clique sur la zone [Image #3] cela amène sur http://localhost:4202/deployments alors que la menu admin/deploiement amène vers http://localhost:4202/admin?tab=deploiement, la page qui fonctionne est bien http://localhost:4202/admin?tab=deploiement, corrige bien sur cette fonction générique sur la version de base pour la deployé ensuite sur la version child",
+      "startedAt": "2026-05-02T21:10:00.000Z",
+      "completedAt": "2026-05-02T21:30:00.000Z"
     }
   ]
 }
