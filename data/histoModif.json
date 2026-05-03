@@ -662,6 +662,48 @@
       "prompt": "le toogle pour affichage ou non de l historique action ne doit pas être dans le volet des outils externe mais dans l admin/config : http://localhost:4202/admin?tab=config car cette outils n est pas un outils externe mais bien un outils interne à l application de base.",
       "startedAt": "2026-05-03T12:20:00.000Z",
       "completedAt": "2026-05-03T12:30:00.000Z"
+    },
+    {
+      "id": "mod-027",
+      "version": "B0.26",
+      "date": "2026-05-03T13:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:wo-action-history",
+      "title": "wo-action-history : panneau info outils trackés",
+      "description": "Ajout d un panneau dépliable «Outils trackés» sur la page /wo-action-history. Bouton «info» dans le header toggle le panneau. Affiche chaque outil instrumenté (admin/users, documents/catégories, documents/documents) avec ses actions enregistrées, un indicateur réversible/non-réversible et la note explicative. Légende en bas + snippet window.WoActionHistory.track() pour indiquer comment intégrer d autres outils.",
+      "files": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans l outils affichage historique action il faudrait une information sur quel outils précis et quelle action sont enregistré.",
+      "startedAt": "2026-05-03T12:50:00.000Z",
+      "completedAt": "2026-05-03T13:00:00.000Z"
+    },
+    {
+      "id": "mod-028",
+      "version": "B0.27",
+      "date": "2026-05-03T13:30:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": ["frankenstein", "system"],
+      "features": "frankenstein:wo-action-history,system:workflow",
+      "title": "Fix NG5002 + règle vérification build Angular dans CLAUDE.md",
+      "description": "Correction de l'erreur NG5002 (Opening tag 'button' not terminated) dans wo-action-history.component.html : le binding [class.border-indigo-500/40] contient un '/' incompatible avec la syntaxe [class.xxx] d'Angular. Remplacement par [ngClass] avec expression conditionnelle. Ajout dans CLAUDE.md d'une règle obligatoire de vérification de compilation Angular après chaque modification (ng build, non tsc --noEmit), avec documentation du piège Tailwind '/' et de la commande exacte à utiliser.",
+      "files": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html",
+        "CLAUDE.md"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "a chaque modification ou correction il faudrait que tu test que l'application puisse ce compilé, la ce n'est pas le cas, rajoute ce tests à chaque modification dans le claude.md et corrige le problème actuel: Application bundle generation failed... NG5002: Opening tag 'button' not terminated...",
+      "startedAt": "2026-05-03T13:00:00.000Z",
+      "completedAt": "2026-05-03T13:30:00.000Z"
     }
   ]
 }

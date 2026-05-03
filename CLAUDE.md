@@ -1,5 +1,27 @@
 # Worganic Platform — Instructions pour Claude Code
 
+## Règle obligatoire : Vérification de compilation Angular
+
+**Après toute modification d'un fichier Angular** (`.html`, `.component.ts`, `.service.ts`, `.module.ts`), vérifier que l'application compile sans erreur avant de déclarer la tâche terminée.
+
+### Commande de vérification
+```bash
+cd frankenstein && npx ng build --no-progress 2>&1 | grep -E "(ERROR|✘|error TS)" | grep -v "budget"
+```
+Si la commande retourne des lignes → corriger avant de continuer. Si aucune ligne → compilation OK.
+
+### Pourquoi `tsc --noEmit` est insuffisant
+`tsc --noEmit` ne détecte pas les erreurs de template Angular (NG5xxx, NG8xxx). Seul `ng build` valide la compilation complète des templates.
+
+### Piège fréquent : classes Tailwind avec `/`
+Angular `[class.xxx]` **ne supporte pas** les `/` dans les noms de classe (ex: `indigo-500/40`).
+- ❌ `[class.border-indigo-500/40]="condition"` — NG5002 : tag non terminé
+- ✅ `[ngClass]="condition ? 'border-indigo-500/40' : 'autre-classe'"` — correct
+
+Toujours utiliser `[ngClass]` quand une classe Tailwind contient `/`.
+
+---
+
 ## Règle obligatoire : Historique des modifications
 
 **À chaque fois que tu reçois un prompt**, tu dois enregistrer une entrée dans `data/histoModif.json`.
