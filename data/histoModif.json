@@ -1003,6 +1003,27 @@
       "prompt": "fait le dans la base",
       "startedAt": "2026-05-04T00:00:00.000Z",
       "completedAt": "2026-05-03T23:34:13.973Z"
+    },
+    {
+      "id": "mod-042",
+      "version": "B0.37",
+      "date": "2026-05-03T23:42:09.706Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:auth",
+      "title": "Landing : name manquant sur input loginEmail",
+      "description": "L input email du formulaire de connexion n avait pas d attribut name, provoquant l erreur Angular NG01352 (ngModel dans form sans name). Ajout de name=login-email.",
+      "files": [
+        "frankenstein/src/app/pages/public/landing/landing.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "Failed to load resource: the server responded with a status of 401 (Unauthorized) et ERROR RuntimeError: NG01352: If ngModel is used within a form tag, either the name attribute must be set",
+      "startedAt": "2026-05-04T00:00:00.000Z",
+      "completedAt": "2026-05-03T23:42:09.706Z"
     }
   ]
 }
