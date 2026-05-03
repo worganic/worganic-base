@@ -34,6 +34,7 @@ export interface WoActionEntry {
   undoneAt?: string;
   undoneBy?: string;
   undoAction?: WoUndoAction;
+  redoAction?: WoUndoAction;
   meta?: Record<string, any>;
 }
 
@@ -85,6 +86,21 @@ export class WoActionHistoryService {
     this._entries.update(list =>
       list.map(e => e.id === actionId
         ? { ...e, undone: true, undoneAt: new Date().toISOString(), undoneBy: user?.username }
+        : e
+      )
+    );
+  }
+
+  async redo(actionId: string): Promise<void> {
+    const user = this.auth.currentUser();
+    await firstValueFrom(
+      this.http.post(`${API}/api/wo-action-history/${actionId}/redo`, {
+        redoneBy: user?.username
+      })
+    );
+    this._entries.update(list =>
+      list.map(e => e.id === actionId
+        ? { ...e, undone: false, undoneAt: undefined, undoneBy: undefined }
         : e
       )
     );

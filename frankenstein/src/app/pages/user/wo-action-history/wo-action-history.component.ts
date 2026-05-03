@@ -17,6 +17,7 @@ export class WoActionHistoryComponent implements OnInit {
 
   loading = signal(false);
   undoing = signal<string | null>(null);
+  redoing = signal<string | null>(null);
   error = signal('');
   showInfo = signal(false);
 
@@ -155,6 +156,10 @@ export class WoActionHistoryComponent implements OnInit {
     return this.filteredEntries.filter(e => e.undoable && !e.undone).length;
   }
 
+  get redoableCount(): number {
+    return this.filteredEntries.filter(e => e.undone && !!e.redoAction).length;
+  }
+
   async ngOnInit() {
     await this.loadHistory();
   }
@@ -172,7 +177,7 @@ export class WoActionHistoryComponent implements OnInit {
   }
 
   async undoAction(entry: WoActionEntry) {
-    if (!entry.undoable || entry.undone || this.undoing()) return;
+    if (!entry.undoable || entry.undone || this.undoing() || this.redoing()) return;
     this.undoing.set(entry.id);
     this.error.set('');
     try {
@@ -181,6 +186,19 @@ export class WoActionHistoryComponent implements OnInit {
       this.error.set(e?.error?.error || "Erreur lors de l'annulation");
     } finally {
       this.undoing.set(null);
+    }
+  }
+
+  async redoAction(entry: WoActionEntry) {
+    if (!entry.undone || !entry.redoAction || this.redoing() || this.undoing()) return;
+    this.redoing.set(entry.id);
+    this.error.set('');
+    try {
+      await this.historyService.redo(entry.id);
+    } catch (e: any) {
+      this.error.set(e?.error?.error || "Erreur lors du rétablissement");
+    } finally {
+      this.redoing.set(null);
     }
   }
 

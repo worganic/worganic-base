@@ -2644,6 +2644,7 @@ app.get('/api/wo-action-history', async (req, res) => {
             undoneAt: r.undone_at || undefined,
             undoneBy: r.undone_by || undefined,
             undoAction: r.undo_action || undefined,
+            redoAction: r.redo_action || undefined,
             meta: r.meta || undefined
         }));
         res.json(entries);
@@ -2655,7 +2656,7 @@ app.get('/api/wo-action-history', async (req, res) => {
 
 app.post('/api/wo-action-history', async (req, res) => {
     const { section, subsection, actionType, label, entityType, entityId, entityLabel,
-            beforeState, afterState, userId, username, context, undoable, undoAction, meta } = req.body;
+            beforeState, afterState, userId, username, context, undoable, undoAction, redoAction, meta } = req.body;
     if (!section || !actionType || !label) {
         return res.status(400).json({ error: 'section, actionType et label sont requis' });
     }
@@ -2668,8 +2669,8 @@ app.post('/api/wo-action-history', async (req, res) => {
         await pool.query(
             `INSERT INTO wo_action_history
              (id, timestamp, section, subsection, action_type, label, entity_type, entity_id, entity_label,
-              before_state, after_state, user_id, username, context, undoable, undone, undo_action, meta)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?,?)`,
+              before_state, after_state, user_id, username, context, undoable, undone, undo_action, redo_action, meta)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?,?,?)`,
             [id, now, section, subsection || '', actionType, label,
              entityType || '', entityId || '', entityLabel || '',
              beforeState ? JSON.stringify(beforeState) : null,
@@ -2678,13 +2679,14 @@ app.post('/api/wo-action-history', async (req, res) => {
              context ? JSON.stringify(context) : null,
              undoable ? 1 : 0,
              undoAction ? JSON.stringify(undoAction) : null,
+             redoAction ? JSON.stringify(redoAction) : null,
              meta ? JSON.stringify(meta) : null]
         );
 
         const entry = {
             id, timestamp: now.toISOString(), section, subsection, actionType, label,
             entityType, entityId, entityLabel, beforeState, afterState,
-            userId, username, context, undoable: !!undoable, undone: false, undoAction, meta
+            userId, username, context, undoable: !!undoable, undone: false, undoAction, redoAction, meta
         };
         console.log(`[WO_ACTION_HISTORY] Tracked: ${id} — ${label} (${section})`);
         res.json(entry);
@@ -2743,6 +2745,55 @@ app.post('/api/wo-action-history/:id/undo', async (req, res) => {
     } catch (e) {
         console.error('[WO_ACTION_HISTORY] Undo error:', e);
         res.status(500).json({ error: "Erreur lors de l'annulation" });
+    }
+});
+
+app.post('/api/wo-action-history/:id/redo', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM wo_action_history WHERE id = ?', [req.params.id]);
+        if (!rows[0]) return res.status(404).json({ error: 'Action introuvable' });
+
+        const entry = rows[0];
+        if (!entry.undone) return res.status(400).json({ error: "Cette action n'a pas été annulée" });
+
+        const redoAction = typeof entry.redo_action === 'string'
+            ? JSON.parse(entry.redo_action)
+            : entry.redo_action;
+
+        if (!redoAction?.endpoint || !redoAction?.method) {
+            return res.status(400).json({ error: "Aucune action de rétablissement définie" });
+        }
+
+        const port = process.env.PORT || 3001;
+        const selfUrl = `http://localhost:${port}${redoAction.endpoint}`;
+        const fetchOptions = {
+            method: redoAction.method,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {}),
+                ...(req.headers.cookie ? { Cookie: req.headers.cookie } : {})
+            }
+        };
+        if (redoAction.payload && ['PUT', 'POST', 'PATCH'].includes(redoAction.method)) {
+            fetchOptions.body = JSON.stringify(redoAction.payload);
+        }
+
+        const redoRes = await fetch(selfUrl, fetchOptions);
+        if (!redoRes.ok && redoRes.status !== 404) {
+            const errData = await redoRes.json().catch(() => ({}));
+            return res.status(redoRes.status).json({ error: errData.error || "Erreur lors du rétablissement" });
+        }
+
+        await pool.query(
+            'UPDATE wo_action_history SET undone = 0, undone_at = NULL, undone_by = ? WHERE id = ?',
+            [req.body?.redoneBy || '', req.params.id]
+        );
+
+        console.log(`[WO_ACTION_HISTORY] Redo: ${req.params.id} — ${entry.label}`);
+        res.json({ success: true });
+    } catch (e) {
+        console.error('[WO_ACTION_HISTORY] Redo error:', e);
+        res.status(500).json({ error: "Erreur lors du rétablissement" });
     }
 });
 
@@ -5396,6 +5447,7 @@ app.listen(PORT, async () => {
             undone_at     DATETIME      NULL,
             undone_by     VARCHAR(255)  DEFAULT '',
             undo_action   JSON          DEFAULT NULL,
+            redo_action   JSON          DEFAULT NULL,
             meta          JSON          DEFAULT NULL,
             INDEX idx_wah_section  (section),
             INDEX idx_wah_user     (user_id),

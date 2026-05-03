@@ -1024,6 +1024,31 @@
       "prompt": "Failed to load resource: the server responded with a status of 401 (Unauthorized) et ERROR RuntimeError: NG01352: If ngModel is used within a form tag, either the name attribute must be set",
       "startedAt": "2026-05-04T00:00:00.000Z",
       "completedAt": "2026-05-03T23:42:09.706Z"
+    },
+    {
+      "id": "mod-043",
+      "version": "B0.38",
+      "date": "2026-05-03T23:48:39.967Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein",
+        "server"
+      ],
+      "features": "frankenstein:wo-action-history,server:wo-action-history",
+      "title": "Rétablissement (redo) des actions annulées dans wo-action-history",
+      "description": "Ajout du système de rétablissement (redo) dans wo-action-history : colonne redo_action en BDD, endpoint POST /api/wo-action-history/:id/redo, champ redoAction dans le service Angular, méthode redo() dans le service, signal redoing + méthode redoAction() dans le composant, bouton Rétablir (bleu) dans le template. Le redo remet undone=0, permettant un cycle undo/redo illimité.",
+      "files": [
+        "server/server-data.js",
+        "frankenstein/src/app/core/services/wo-action-history.service.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans l outils historique on peux annuler une action mais il faudrais aussi pouvoir la rétablir après annulation, ajoute cette option sur toutes les actions dans wo-action-history en fesant la modif dans la base qu on repercutra ensuite via pull dans les child",
+      "startedAt": "2026-05-04T00:00:00.000Z",
+      "completedAt": "2026-05-03T23:48:39.967Z"
     }
   ]
 }
