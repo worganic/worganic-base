@@ -829,6 +829,27 @@
       "prompt": "lorsque j'enregistre des paramètres dans admin/config je veux que les données soi gardé en mémoire (bdd) pour que lorsque je relance le projet, celui ci reprenne la config enregistré comme c'est le cas pour les thèmes (color)",
       "startedAt": "2026-05-03T16:10:00.000Z",
       "completedAt": "2026-05-03T15:46:38.127Z"
+    },
+    {
+      "id": "mod-034",
+      "version": "B0.31",
+      "date": "2026-05-03T15:51:42.793Z",
+      "type": "config",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "system"
+      ],
+      "features": "system:workflow",
+      "title": "Documentation système wo-action-history",
+      "description": "Création du dossier doc/ et du fichier infos-action-historique.md documentant le fonctionnement complet du système d'historisation des actions : architecture, table MySQL, service Angular, patterns d'intégration (create/update/delete), mécanisme d'undo, page de visualisation, activation via toggle nav, et checklist d'intégration pour un nouvel outil.",
+      "files": [
+        "doc/infos-action-historique.md"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "ajoute dans le dossier doc un fichier infos-action-historique.md ou sont expliqué le mode de fonctionnement et de mise en place du système d'historisation des actions afin de pouvoir utilisé cet doc pour la mise en place futur de cette option dans des outils mise en place sur le site dans la version de base ou child.",
+      "startedAt": "2026-05-03T17:00:00.000Z",
+      "completedAt": "2026-05-03T15:51:42.794Z"
     }
   ]
 }
