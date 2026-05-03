@@ -143,6 +143,149 @@
         "data/base-propagation.json"
       ],
       "propagationNote": "Copier les 2 fichiers du composant admin-deployments. Corriger data/base-propagation.json si B0.21 a encore propagationRequired:true."
+    },
+    {
+      "baseVersion": "B0.26",
+      "date": "2026-05-03T00:00:00Z",
+      "modRef": "mod-025",
+      "title": "Système wo-action-history : service, page, BDD, nav, config",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "frankenstein/src/app/core/services/wo-action-history.service.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.scss",
+        "frankenstein/src/app/base-routes.ts",
+        "frankenstein/src/app/shared/layout/nav/nav.component.ts",
+        "frankenstein/src/app/shared/layout/nav/nav.component.html",
+        "frankenstein/src/app/core/services/config.service.ts",
+        "frankenstein/src/app/pages/user/config/config.component.ts",
+        "frankenstein/src/app/pages/user/config/config.component.html",
+        "frankenstein/src/app/pages/admin/tabs/admin-users/admin-users.component.ts",
+        "frankenstein/src/app/pages/user/documents/documents.component.ts",
+        "server/server-data.js"
+      ],
+      "propagationNote": "Créer wo-action-history.service.ts dans core/services/. Créer le dossier pages/user/wo-action-history/ avec les 3 fichiers (ts, html, scss). Dans base-routes.ts : ajouter la route wo-action-history. Dans nav.component.ts : injecter ConfigService. Dans nav.component.html : ajouter le lien conditionnel Historique. Dans config.service.ts : ajouter signal woActionHistoryNavEnabled + chargement navItems + méthode saveNavItems(). Dans config.component.ts : importer WoActionHistoryService, ajouter au constructeur, ajouter getter + toggleWoActionHistoryNav(). Dans config.component.html : ajouter le toggle UI Historique. Dans server-data.js : ajouter les 4 routes /api/wo-action-history + la table MySQL wo_action_history dans le init."
+    },
+    {
+      "baseVersion": "B0.27",
+      "date": "2026-05-03T00:00:00Z",
+      "modRef": "mod-026",
+      "title": "Fix NG5002 template wo-action-history + règle CLAUDE.md build",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html",
+        "CLAUDE.md"
+      ],
+      "propagationNote": "Mettre à jour wo-action-history.component.html (fix [ngClass] pour classes Tailwind avec /). Mettre à jour CLAUDE.md (règle obligatoire ng build pour vérification compilation)."
+    },
+    {
+      "baseVersion": "B0.28",
+      "date": "2026-05-03T00:00:00Z",
+      "modRef": "mod-027",
+      "title": "Historique actions : affichage diff champs modifiés",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts"
+      ],
+      "propagationNote": "Mettre à jour wo-action-history.component.ts (méthode getDiffFields, parseState, sensitiveFields). Mettre à jour wo-action-history.component.html (section diff fields)."
+    },
+    {
+      "baseVersion": "B0.29",
+      "date": "2026-05-03T00:00:00Z",
+      "modRef": "mod-028",
+      "title": "Boutons : couleur texte adaptative via --btn-text-color",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "frankenstein/src/styles.scss",
+        "frankenstein/tailwind.config.js",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html",
+        "frankenstein/src/app/pages/admin/tabs/admin-help/admin-help.component.html",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.ts",
+        "frankenstein/src/app/pages/admin/tabs/admin-users/admin-users.component.html",
+        "frankenstein/src/app/pages/user/config/config.component.html",
+        "frankenstein/src/app/pages/user/documents/documents.component.html",
+        "frankenstein/src/app/pages/user/editor/editor.component.html",
+        "frankenstein/src/app/pages/user/home/home.component.html",
+        "frankenstein/src/app/shared/layout/footer/footer.component.html",
+        "frankenstein/src/app/tools/ticket-widget/ticket-widget.component.html",
+        "frankenstein/src/app/tools/wo/wo-actions/wo-actions-widget.component.html",
+        "frankenstein/src/app/tools/wo/wo-actions/wo-actions.component.html"
+      ],
+      "propagationNote": "Dans styles.scss : ajouter --btn-text-color: 255 255 255 dans :root dark. Dans tailwind.config.js : ajouter btn-text: rgb(var(--btn-text-color)). Remplacer text-white par dark:text-btn-text sur les boutons bg-primary dans tous les fichiers HTML listés."
+    },
+    {
+      "baseVersion": "B0.30",
+      "date": "2026-05-03T00:00:00Z",
+      "modRef": "mod-029",
+      "title": "Config persistance enabledTabs + navItems + fix JSON parsing user.config",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "server/server-data.js"
+      ],
+      "propagationNote": "Dans GET /api/config/keys : corriger le parsing JSON de user.config (guard typeof string). Ajouter enabledTabs et navItems dans la réponse (depuis globalConf). Dans POST /api/config/keys : même fix JSON parsing. Déstructurer enabledTabs et navItems depuis req.body. Ajouter dans la condition de sauvegarde conf.json et sauvegarder les deux champs."
+    },
+    {
+      "baseVersion": "B0.31",
+      "date": "2026-05-03T00:00:00Z",
+      "modRef": "mod-030",
+      "title": "Documentation système wo-action-history",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "docs/infos-action-historique.md"
+      ],
+      "propagationNote": "Créer docs/infos-action-historique.md — documentation complète du système (architecture, table MySQL, service Angular, exemples, règles, checklist intégration)."
+    },
+    {
+      "baseVersion": "B0.32",
+      "date": "2026-05-03T00:00:00Z",
+      "modRef": "mod-031",
+      "title": "Tracking actions admin/config dans wo-action-history",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "frankenstein/src/app/pages/user/config/config.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts"
+      ],
+      "propagationNote": "Dans config.component.ts : ajouter this.woHistory.track() dans toggleHeaderIa() et toggleWoActionHistoryNav(). Dans wo-action-history.component.ts : ajouter la section admin/config dans trackedTools[]."
+    },
+    {
+      "baseVersion": "B0.33",
+      "date": "2026-05-03T00:00:00Z",
+      "modRef": "mod-032",
+      "title": "wo-action-history : filtre date + fix thème scss",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.scss",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts"
+      ],
+      "propagationNote": "Mettre à jour les 3 fichiers du composant wo-action-history (filtres par période, fix styles select dark mode)."
     }
   ]
 }
