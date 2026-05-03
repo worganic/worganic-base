@@ -28,6 +28,9 @@ export class ConfigComponent implements OnInit, OnDestroy {
   get headerIaVisible(): boolean { return this.configService.headerIaVisible(); }
   toggleHeaderIa() { this.configService.saveHeaderIaVisible(!this.headerIaVisible); }
 
+  get woActionHistoryNavEnabled(): boolean { return this.configService.woActionHistoryNavEnabled(); }
+  toggleWoActionHistoryNav() { this.configService.saveNavItems({ woActionHistory: !this.woActionHistoryNavEnabled }); }
+
   // App settings
   appVersion = '';
   ticketsEnabled = false;

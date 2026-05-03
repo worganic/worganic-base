@@ -2587,6 +2587,163 @@ app.put('/api/history/:id', async (req, res) => {
 });
 
 // ============================================================
+// WO Action History
+// ============================================================
+
+app.get('/api/wo-action-history', async (req, res) => {
+    try {
+        const { section, userId, entityType, entityId, contextKey, contextValue, undoableOnly, limit, offset } = req.query;
+        let sql = 'SELECT * FROM wo_action_history WHERE 1=1';
+        const params = [];
+
+        if (section)      { sql += ' AND section = ?';      params.push(section); }
+        if (userId)       { sql += ' AND user_id = ?';      params.push(userId); }
+        if (entityType)   { sql += ' AND entity_type = ?';  params.push(entityType); }
+        if (entityId)     { sql += ' AND entity_id = ?';    params.push(entityId); }
+        if (contextKey && contextValue) {
+            sql += ` AND JSON_EXTRACT(context, '$.${contextKey}') = ?`;
+            params.push(contextValue);
+        }
+        if (undoableOnly === 'true') { sql += ' AND undoable = 1'; }
+
+        sql += ' ORDER BY timestamp DESC';
+        sql += ` LIMIT ${Math.min(parseInt(limit) || 300, 1000)}`;
+        if (offset) sql += ` OFFSET ${parseInt(offset) || 0}`;
+
+        const [rows] = await pool.query(sql, params);
+        const entries = rows.map(r => ({
+            id: r.id,
+            timestamp: r.timestamp,
+            section: r.section,
+            subsection: r.subsection || undefined,
+            actionType: r.action_type,
+            label: r.label,
+            entityType: r.entity_type || undefined,
+            entityId: r.entity_id || undefined,
+            entityLabel: r.entity_label || undefined,
+            beforeState: r.before_state || undefined,
+            afterState: r.after_state || undefined,
+            userId: r.user_id || undefined,
+            username: r.username || undefined,
+            context: r.context || undefined,
+            undoable: !!r.undoable,
+            undone: !!r.undone,
+            undoneAt: r.undone_at || undefined,
+            undoneBy: r.undone_by || undefined,
+            undoAction: r.undo_action || undefined,
+            meta: r.meta || undefined
+        }));
+        res.json(entries);
+    } catch (e) {
+        console.error('[WO_ACTION_HISTORY] Get error:', e);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+app.post('/api/wo-action-history', async (req, res) => {
+    const { section, subsection, actionType, label, entityType, entityId, entityLabel,
+            beforeState, afterState, userId, username, context, undoable, undoAction, meta } = req.body;
+    if (!section || !actionType || !label) {
+        return res.status(400).json({ error: 'section, actionType et label sont requis' });
+    }
+    try {
+        const [countRows] = await pool.query('SELECT COUNT(*) AS cnt FROM wo_action_history');
+        const nextNum = (Number(countRows[0].cnt) + 1).toString().padStart(3, '0');
+        const id = `wah-${nextNum}`;
+        const now = new Date();
+
+        await pool.query(
+            `INSERT INTO wo_action_history
+             (id, timestamp, section, subsection, action_type, label, entity_type, entity_id, entity_label,
+              before_state, after_state, user_id, username, context, undoable, undone, undo_action, meta)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?,?)`,
+            [id, now, section, subsection || '', actionType, label,
+             entityType || '', entityId || '', entityLabel || '',
+             beforeState ? JSON.stringify(beforeState) : null,
+             afterState  ? JSON.stringify(afterState)  : null,
+             userId || null, username || '',
+             context ? JSON.stringify(context) : null,
+             undoable ? 1 : 0,
+             undoAction ? JSON.stringify(undoAction) : null,
+             meta ? JSON.stringify(meta) : null]
+        );
+
+        const entry = {
+            id, timestamp: now.toISOString(), section, subsection, actionType, label,
+            entityType, entityId, entityLabel, beforeState, afterState,
+            userId, username, context, undoable: !!undoable, undone: false, undoAction, meta
+        };
+        console.log(`[WO_ACTION_HISTORY] Tracked: ${id} — ${label} (${section})`);
+        res.json(entry);
+    } catch (e) {
+        console.error('[WO_ACTION_HISTORY] Create error:', e);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+app.post('/api/wo-action-history/:id/undo', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM wo_action_history WHERE id = ?', [req.params.id]);
+        if (!rows[0]) return res.status(404).json({ error: 'Action introuvable' });
+
+        const entry = rows[0];
+        if (!entry.undoable)  return res.status(400).json({ error: "Cette action n'est pas réversible" });
+        if (entry.undone)     return res.status(400).json({ error: 'Cette action a déjà été annulée' });
+
+        const undoAction = typeof entry.undo_action === 'string'
+            ? JSON.parse(entry.undo_action)
+            : entry.undo_action;
+
+        if (!undoAction?.endpoint || !undoAction?.method) {
+            return res.status(400).json({ error: "Aucune action d'annulation définie" });
+        }
+
+        const port = process.env.PORT || 3001;
+        const selfUrl = `http://localhost:${port}${undoAction.endpoint}`;
+        const fetchOptions = {
+            method: undoAction.method,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {})
+            }
+        };
+        if (undoAction.payload && ['PUT', 'POST', 'PATCH'].includes(undoAction.method)) {
+            fetchOptions.body = JSON.stringify(undoAction.payload);
+        }
+
+        const undoRes = await fetch(selfUrl, fetchOptions);
+        if (!undoRes.ok && undoRes.status !== 404) {
+            const errData = await undoRes.json().catch(() => ({}));
+            return res.status(undoRes.status).json({ error: errData.error || "Erreur lors de l'annulation" });
+        }
+
+        const undoneAt = new Date();
+        const undoneBy = req.body?.undoneBy || '';
+        await pool.query(
+            'UPDATE wo_action_history SET undone = 1, undone_at = ?, undone_by = ? WHERE id = ?',
+            [undoneAt, undoneBy, req.params.id]
+        );
+
+        console.log(`[WO_ACTION_HISTORY] Undo: ${req.params.id} — ${entry.label} by ${undoneBy}`);
+        res.json({ success: true, undoneAt: undoneAt.toISOString(), undoneBy });
+    } catch (e) {
+        console.error('[WO_ACTION_HISTORY] Undo error:', e);
+        res.status(500).json({ error: "Erreur lors de l'annulation" });
+    }
+});
+
+app.delete('/api/wo-action-history', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM wo_action_history');
+        console.log('[WO_ACTION_HISTORY] History cleared');
+        res.json({ success: true });
+    } catch (e) {
+        console.error('[WO_ACTION_HISTORY] Clear error:', e);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// ============================================================
 // Tickets
 // ============================================================
 
@@ -5197,6 +5354,34 @@ app.listen(PORT, async () => {
             INDEX idx_frank_steps_project (project_id)
         )
     `).catch(e => console.error('[DB] frank_project_steps init error:', e.message));
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS wo_action_history (
+            id            VARCHAR(50)   PRIMARY KEY,
+            timestamp     DATETIME      DEFAULT CURRENT_TIMESTAMP,
+            section       VARCHAR(100)  NOT NULL,
+            subsection    VARCHAR(100)  DEFAULT '',
+            action_type   VARCHAR(50)   NOT NULL,
+            label         VARCHAR(500)  NOT NULL,
+            entity_type   VARCHAR(100)  DEFAULT '',
+            entity_id     VARCHAR(100)  DEFAULT '',
+            entity_label  VARCHAR(255)  DEFAULT '',
+            before_state  JSON          DEFAULT NULL,
+            after_state   JSON          DEFAULT NULL,
+            user_id       CHAR(36)      NULL,
+            username      VARCHAR(255)  DEFAULT '',
+            context       JSON          DEFAULT NULL,
+            undoable      BOOLEAN       DEFAULT FALSE,
+            undone        BOOLEAN       DEFAULT FALSE,
+            undone_at     DATETIME      NULL,
+            undone_by     VARCHAR(255)  DEFAULT '',
+            undo_action   JSON          DEFAULT NULL,
+            meta          JSON          DEFAULT NULL,
+            INDEX idx_wah_section  (section),
+            INDEX idx_wah_user     (user_id),
+            INDEX idx_wah_entity   (entity_type, entity_id)
+        )
+    `).catch(e => console.error('[DB] wo_action_history init error:', e.message));
 
     console.log(`
 +==========================================+

@@ -587,7 +587,9 @@
       "date": "2026-05-02T21:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
-      "scope": ["frankenstein"],
+      "scope": [
+        "frankenstein"
+      ],
       "features": "frankenstein:deployments|admin",
       "title": "Header : fix bannière MAJ toujours visible + liens vers admin?tab=deploiement",
       "description": "Fix 1 : En mode child, l'API /api/version/check retourne { mode:'child', child:{...}, base:{...} } alors que le signal versionStatus attend { upToDate, localVersion, latestDeployment }. La réponse non normalisée faisait que upToDate était undefined (falsy), déclenchant toujours la bannière 'Mise à jour requise' avec 'v → v'. Correction dans checkVersion() : si data.mode === 'child', on normalise vers la structure attendue (upToDate = child.upToDate && base.upToDate). Fix 2 : Les deux liens de la bannière pointaient vers /deployments (route inexistante fonctionnelle) au lieu de /admin?tab=deploiement.",
@@ -600,6 +602,66 @@
       "prompt": "dans la version child on à une information Mise à jour requise [Image #1], alors que la version est bien à jour : [Image #2], autre problème lorsqu'on clique sur la zone [Image #3] cela amène sur http://localhost:4202/deployments alors que la menu admin/deploiement amène vers http://localhost:4202/admin?tab=deploiement, la page qui fonctionne est bien http://localhost:4202/admin?tab=deploiement, corrige bien sur cette fonction générique sur la version de base pour la deployé ensuite sur la version child",
       "startedAt": "2026-05-02T21:10:00.000Z",
       "completedAt": "2026-05-02T21:30:00.000Z"
+    },
+    {
+      "id": "mod-025",
+      "version": "B0.26",
+      "date": "2026-05-03T12:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein",
+        "server"
+      ],
+      "features": "frankenstein:wo-action-history|admin,server:wo-action-history",
+      "title": "Système wo-action-history : historisation des actions utilisateur",
+      "description": "Implémentation complète du système d historisation des actions utilisateur (wo-action-history). Table MySQL wo_action_history avec contexte user + outil (section, userId, username, context JSON pour projectId etc). Service Angular WoActionHistoryService avec track(), undo(), load(). Page /wo-action-history dans base-routes (commune à tous les projets) avec timeline chronologique, filtres par section/user/type, et bouton Annuler pour les actions réversibles. Toggle admin/outils pour afficher/masquer le menu (caché par défaut via navItems.woActionHistory dans app_config). Pont window.WoActionHistory pour scripts JS non-Angular. Intégration sur admin/users (create/update/delete) et documents/ (category create/update/delete + document create/update/delete) avec snapshots before/after et undoAction descriptor.",
+      "files": [
+        "frankenstein/src/app/core/services/wo-action-history.service.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.scss",
+        "frankenstein/src/app/core/services/config.service.ts",
+        "frankenstein/src/app/shared/layout/nav/nav.component.ts",
+        "frankenstein/src/app/shared/layout/nav/nav.component.html",
+        "frankenstein/src/app/base-routes.ts",
+        "frankenstein/src/app/app.component.ts",
+        "frankenstein/src/app/tools/wo/wo-tools-admin/wo-tools-admin.component.ts",
+        "frankenstein/src/app/tools/wo/wo-tools-admin/wo-tools-admin.component.html",
+        "frankenstein/src/app/pages/admin/tabs/admin-users/admin-users.component.ts",
+        "frankenstein/src/app/pages/user/documents/documents.component.ts",
+        "server/server-data.js",
+        "server/init-db.js"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "vas y lance le dev de toutes les étapes",
+      "startedAt": "2026-05-03T10:00:00.000Z",
+      "completedAt": "2026-05-03T12:00:00.000Z"
+    },
+    {
+      "id": "mod-026",
+      "version": "B0.26",
+      "date": "2026-05-03T12:30:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:wo-action-history|admin",
+      "title": "wo-action-history : déplacement toggle vers admin/config",
+      "description": "Le toggle d activation du menu Historique des actions était placé dans le volet Outils Externes (wo-tools-admin), ce qui était sémantiquement incorrect car wo-action-history est un outil interne à l application et non un outil externe. Déplacement dans admin/config (ConfigComponent), section Général, après le toggle Zone IA dans le header. Pattern identique aux autres toggles. Suppression de la section Navigation principale dans wo-tools-admin et de la méthode toggleActionHistoryNav().",
+      "files": [
+        "frankenstein/src/app/pages/user/config/config.component.ts",
+        "frankenstein/src/app/pages/user/config/config.component.html",
+        "frankenstein/src/app/tools/wo/wo-tools-admin/wo-tools-admin.component.ts",
+        "frankenstein/src/app/tools/wo/wo-tools-admin/wo-tools-admin.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "le toogle pour affichage ou non de l historique action ne doit pas être dans le volet des outils externe mais dans l admin/config : http://localhost:4202/admin?tab=config car cette outils n est pas un outils externe mais bien un outils interne à l application de base.",
+      "startedAt": "2026-05-03T12:20:00.000Z",
+      "completedAt": "2026-05-03T12:30:00.000Z"
     }
   ]
 }
