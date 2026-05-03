@@ -73,6 +73,8 @@ export class WoActionHistoryComponent implements OnInit {
   filterSectionValue = '';
   filterUserIdValue = '';
   filterActionTypeValue = '';
+  filterDateMode: 'all' | 'today' | 'week' | 'month' | 'custom' = 'all';
+  filterDateCustom = '';
 
   get isAdmin() { return this.auth.currentUser()?.role === 'admin'; }
 
@@ -91,10 +93,50 @@ export class WoActionHistoryComponent implements OnInit {
 
   get filteredEntries(): WoActionEntry[] {
     let list = this.historyService.entries();
-    if (this.filterSectionValue) list = list.filter(e => e.section === this.filterSectionValue);
-    if (this.filterUserIdValue) list = list.filter(e => e.userId === this.filterUserIdValue);
+    if (this.filterSectionValue)    list = list.filter(e => e.section === this.filterSectionValue);
+    if (this.filterUserIdValue)     list = list.filter(e => e.userId === this.filterUserIdValue);
     if (this.filterActionTypeValue) list = list.filter(e => e.actionType === this.filterActionTypeValue);
+    if (this.filterDateMode !== 'all') {
+      const now = new Date();
+      const startOf = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      if (this.filterDateMode === 'today') {
+        const start = startOf(now);
+        list = list.filter(e => new Date(e.timestamp) >= start);
+      } else if (this.filterDateMode === 'week') {
+        const start = startOf(now);
+        start.setDate(start.getDate() - ((now.getDay() + 6) % 7)); // lundi
+        list = list.filter(e => new Date(e.timestamp) >= start);
+      } else if (this.filterDateMode === 'month') {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        list = list.filter(e => new Date(e.timestamp) >= start);
+      } else if (this.filterDateMode === 'custom' && this.filterDateCustom) {
+        const start = new Date(this.filterDateCustom);
+        const end   = new Date(this.filterDateCustom);
+        end.setDate(end.getDate() + 1);
+        list = list.filter(e => { const t = new Date(e.timestamp); return t >= start && t < end; });
+      }
+    }
     return list;
+  }
+
+  get activeDateLabel(): string {
+    const labels: Record<string, string> = {
+      all: '', today: "Aujourd'hui", week: 'Cette semaine', month: 'Ce mois'
+    };
+    if (this.filterDateMode === 'custom' && this.filterDateCustom) {
+      return new Date(this.filterDateCustom).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+    return labels[this.filterDateMode] || '';
+  }
+
+  setDateMode(mode: string) {
+    this.filterDateMode = mode as 'all' | 'today' | 'week' | 'month' | 'custom';
+    this.filterDateCustom = '';
+  }
+
+  resetDateFilter() {
+    this.filterDateMode = 'all';
+    this.filterDateCustom = '';
   }
 
   get groupedEntries(): { day: string; entries: WoActionEntry[] }[] {

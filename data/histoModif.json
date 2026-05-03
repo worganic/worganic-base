@@ -872,6 +872,72 @@
       "prompt": "en utilisant la doc @docs/infos-action-historique.md ajoute les actions du menu admin/config (/admin?tab=config)",
       "startedAt": "2026-05-03T17:30:00.000Z",
       "completedAt": "2026-05-03T16:25:24.682Z"
+    },
+    {
+      "id": "mod-036",
+      "version": "B0.33",
+      "date": "2026-05-03T16:31:02.002Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:wo-action-history",
+      "title": "Fix listes déroulantes wo-action-history en dark mode",
+      "description": "Les options des select natifs n'héritent pas des classes Tailwind dark:. Fix : ajout de styles SCSS ciblant .dark select option avec fond #13131f et texte blanc. Le fond du select lui-même passe de bg-white/5 (quasi transparent) à bg-[#13131f] (couleur solide).",
+      "files": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.scss",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "il y a des problème d'affichage dans les listes deroulante section historique wo-action-history",
+      "startedAt": "2026-05-03T16:31:02.003Z",
+      "completedAt": "2026-05-03T16:31:02.003Z"
+    },
+    {
+      "id": "mod-037",
+      "version": "B0.33",
+      "date": "2026-05-03T16:36:09.981Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:wo-action-history",
+      "title": "Filtre par période dans wo-action-history",
+      "description": "Ajout d'un filtre date dans la barre de filtres de l'historique des actions. Boutons rapides : Tout, Aujourd'hui, Semaine (lundi courant), Mois (1er du mois courant). Bouton Date pour sélectionner une date précise (input type=date). Indicateur de filtre actif avec libellé et croix de réinitialisation. Logique de filtrage dans filteredEntries(), méthodes setDateMode() et resetDateFilter(), getter activeDateLabel().",
+      "files": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "ajouté dans la section wo-action-history un tri par date avec action du jour, action de la semaine, mois ou sur une date précise",
+      "startedAt": "2026-05-03T16:36:09.983Z",
+      "completedAt": "2026-05-03T16:36:09.983Z"
+    },
+    {
+      "id": "mod-038",
+      "version": "B0.33",
+      "date": "2026-05-03T16:43:33.240Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:wo-action-history",
+      "title": "Fix design wo-action-history : couleurs thème au lieu de hardcodé",
+      "description": "La page wo-action-history utilisait des couleurs hardcodées (#0a0a12, #0f0f17, #13131f, indigo-500) incompatibles avec le système de thème du site. Remplacement complet par les variables Tailwind du thème : bg-background, bg-surface, bg-surface-light, text-primary/bg-primary/border-primary. Sélects et boutons de filtre date alignés. SCSS options select mis à jour avec rgb(var(--tw-surface)).",
+      "files": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.scss"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "la section wo-action-history n'a pas le même design (thème) que le reste du site, corrige le problème",
+      "startedAt": "2026-05-03T16:43:33.241Z",
+      "completedAt": "2026-05-03T16:43:33.241Z"
     }
   ]
 }
