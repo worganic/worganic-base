@@ -2717,7 +2717,8 @@ app.post('/api/wo-action-history/:id/undo', async (req, res) => {
             method: undoAction.method,
             headers: {
                 'Content-Type': 'application/json',
-                ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {})
+                ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {}),
+                ...(req.headers.cookie ? { Cookie: req.headers.cookie } : {})
             }
         };
         if (undoAction.payload && ['PUT', 'POST', 'PATCH'].includes(undoAction.method)) {

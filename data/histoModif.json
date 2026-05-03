@@ -982,6 +982,27 @@
       "prompt": "la version child n'est toujours pas à jour avec la base",
       "startedAt": "2026-05-03T17:30:00.000Z",
       "completedAt": "2026-05-03T18:00:00.000Z"
+    },
+    {
+      "id": "mod-041",
+      "version": "B0.36",
+      "date": "2026-05-03T23:34:13.973Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "server"
+      ],
+      "features": "server:wo-action-history",
+      "title": "Undo : transmission du cookie de session aux appels internes",
+      "description": "Le handler POST /api/wo-action-history/:id/undo ne passait pas le cookie de session aux appels fetch internes (PUT, DELETE, PATCH, POST). Les endpoints cibles retournaient 401 car getSessionUser trouvait aucune session, provoquant un 500. Fix : ajout du header Cookie depuis req.headers.cookie dans fetchOptions.",
+      "files": [
+        "server/server-data.js"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "fait le dans la base",
+      "startedAt": "2026-05-04T00:00:00.000Z",
+      "completedAt": "2026-05-03T23:34:13.973Z"
     }
   ]
 }
