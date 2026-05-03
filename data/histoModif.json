@@ -743,6 +743,59 @@
       "prompt": "l'affichage est incompréhensif corrige ça",
       "startedAt": "2026-05-03T14:15:00.000Z",
       "completedAt": "2026-05-03T14:30:00.000Z"
+    },
+    {
+      "id": "mod-031",
+      "version": "B0.29",
+      "date": "2026-05-03T15:30:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": ["frankenstein", "data"],
+      "features": "frankenstein:admin|site,data:theme",
+      "title": "Boutons thème adaptatif : variable --btn-text-color configurable",
+      "description": "Ajout de la variable CSS --btn-text-color (configurable dans admin/thème, auto-calculée depuis la luminance de --tw-primary). Ajout de 'btn-text' dans Tailwind config. Remplacement de text-white par text-white dark:text-btn-text sur tous les boutons primaires (bg-light-primary dark:bg-primary) dans tout le projet. Quand le fond du bouton est clair (thème Emerald, Amber, Cyan), le texte s'adapte automatiquement. La couleur est configurable manuellement dans le panneau Thème de l'administration, et auto-calculée lors du changement de preset.",
+      "files": [
+        "frankenstein/src/styles.scss",
+        "frankenstein/tailwind.config.js",
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.ts",
+        "frankenstein/src/app/pages/user/config/config.component.html",
+        "frankenstein/src/app/pages/user/documents/documents.component.html",
+        "frankenstein/src/app/pages/user/home/home.component.html",
+        "frankenstein/src/app/pages/user/editor/editor.component.html",
+        "frankenstein/src/app/pages/admin/tabs/admin-help/admin-help.component.html",
+        "frankenstein/src/app/pages/admin/tabs/admin-deployments/admin-deployments.component.html",
+        "frankenstein/src/app/pages/admin/tabs/admin-users/admin-users.component.html",
+        "frankenstein/src/app/tools/ticket-widget/ticket-widget.component.html",
+        "frankenstein/src/app/tools/wo/wo-actions/wo-actions.component.html",
+        "frankenstein/src/app/tools/wo/wo-actions/wo-actions-widget.component.html",
+        "frankenstein/src/app/shared/layout/footer/footer.component.html",
+        "frankenstein/src/app/pages/user/projet-editor/components/projet-conversation/projet-conversation.component.html",
+        "data/child/theme.json"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "les boutons doivent avoir le même style que les boutons du thème enregistré... la couleur du texte du bouton doit pouvoir être modifié afin d'adapté la couleur de fond clair ou foncé avec le texte. Actuellement on à de nombreux bouton qui ne peuvent être modifié... Verifi les boutons pour qu'il coresponde au bouton des thèmes et quon puisse adapté la couleur du texte avec la couleur du fond sur chaque bouton",
+      "startedAt": "2026-05-03T14:45:00.000Z",
+      "completedAt": "2026-05-03T15:30:00.000Z"
+    },
+    {
+      "id": "mod-032",
+      "version": "B0.29",
+      "date": "2026-05-03T16:00:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": ["frankenstein"],
+      "features": "frankenstein:admin",
+      "title": "Fix boutons admin-theme : btn-text-color non appliqué",
+      "description": "Les boutons de sauvegarde dans admin-theme.component.html utilisaient [ngClass]='buttonTextClass' (retournant text-gray-900 ou text-white) au lieu de la variable CSS --btn-text-color. Remplacement par text-white dark:text-btn-text. Même correction pour le bouton 'Bouton accent' dans l'aperçu (utilisait bg-accent text-white hardcodé).",
+      "files": [
+        "frankenstein/src/app/pages/admin/tabs/admin-theme/admin-theme.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "cela fonctionne sur certain bouton mais sur d'autre non — bouton accent et sauvegarder le thème dans admin-theme KO",
+      "startedAt": "2026-05-03T15:45:00.000Z",
+      "completedAt": "2026-05-03T16:00:00.000Z"
     }
   ]
 }
