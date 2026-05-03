@@ -231,6 +231,53 @@ Quand l'utilisateur confirme qu'un child a intégré la modification, mettre `pr
 
 ---
 
+## Règle obligatoire : Propagation documentée à chaque commit base
+
+**À chaque commit base**, si des fichiers "core" ont été modifiés, il est **obligatoire** d'ajouter une entrée dans `data/base-propagation.json` **avant** de committer. Sans cette entrée, les children ne sauront jamais quoi mettre à jour.
+
+### Pourquoi cette règle est critique
+Le champ `baseSynced` dans `version.json` d'un child indique la version base référencée, **pas** que les fichiers ont été copiés. Sans entrée dans `base-propagation.json`, le child est marqué "à jour" alors que des fichiers manquent. C'est exactement ce bug qui s'est produit sur B0.26-B0.33.
+
+### Procédure obligatoire avant tout commit base
+
+**Étape 1 — Lister les fichiers modifiés** (automatique depuis les `files` de l'entrée histoModif)
+
+**Étape 2 — Identifier les fichiers "core"** (ceux listés dans la section "Fichiers core — propagation automatique requise" ci-dessus)
+
+**Étape 3 — Créer l'entrée dans `data/base-propagation.json`** si au moins un fichier core est modifié :
+```json
+{
+  "baseVersion": "BX.XX",
+  "date": "<ISO 8601>",
+  "modRef": "mod-XXX",
+  "title": "Titre court de la modification",
+  "propagationRequired": true,
+  "propagationScope": ["liste des fichiers core modifiés"],
+  "propagationNote": "Instructions précises : que copier, que modifier, que créer dans chaque child"
+}
+```
+
+**Étape 4 — Inclure `data/base-propagation.json` dans le `git add`** de ce commit.
+
+### Checklist de vérification propagation (à exécuter en début de session child)
+
+Quand un child est ouvert avec un `baseSynced` inférieur à la version base courante, vérifier pour chaque entrée `propagationRequired: true` dans `base-propagation.json` que chaque fichier du `propagationScope` est bien à jour dans le child en le comparant à la base :
+
+```bash
+# Vérifier qu'un fichier est identique entre base et child
+diff "worganic-base/chemin/fichier" "child--THI-V01/chemin/fichier"
+```
+
+Si une différence est détectée → appliquer le fichier depuis la base avant de continuer.
+
+### Règle du `propagationNote` — être précis
+La note doit permettre à un développeur (ou à une IA) d'appliquer la modification sans lire le diff git. Elle doit mentionner :
+- Les nouveaux fichiers à créer
+- Les sections à ajouter dans les fichiers existants (avec contexte : "après la ligne X", "dans la méthode Y")
+- Les remplacements de patterns (ex: "remplacer `text-white` par `dark:text-btn-text` sur tous les boutons `bg-primary`")
+
+---
+
 ## Architecture du projet
 
 - **Frontend** : Angular 18 standalone — `frankenstein/src/`
