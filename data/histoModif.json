@@ -938,6 +938,50 @@
       "prompt": "la section wo-action-history n'a pas le même design (thème) que le reste du site, corrige le problème",
       "startedAt": "2026-05-03T16:43:33.241Z",
       "completedAt": "2026-05-03T16:43:33.241Z"
+    },
+    {
+      "id": "mod-039",
+      "version": "B0.34",
+      "date": "2026-05-03T17:00:00.000Z",
+      "type": "config",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "system"
+      ],
+      "features": "system:workflow",
+      "title": "Règle propagation obligatoire à chaque commit base",
+      "description": "Ajout dans CLAUDE.md d'une règle obligatoire : toute modification de fichier core doit être documentée dans data/base-propagation.json AVANT le commit. Explication du bug B0.26-B0.33 : baseSynced était marqué à jour mais des dizaines de fichiers n'avaient jamais été copiés dans le child car aucune entrée de propagation n'existait. Ajout de la checklist de vérification propagation et des règles sur le contenu précis de propagationNote.",
+      "files": [
+        "CLAUDE.md"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "il faut qu'a chaque commit cela verifi si tout est bien passé pour le deploiement dans les childs",
+      "startedAt": "2026-05-03T17:00:00.000Z",
+      "completedAt": "2026-05-03T17:00:00.000Z"
+    },
+    {
+      "id": "mod-040",
+      "version": "B0.35",
+      "date": "2026-05-03T18:00:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "system"
+      ],
+      "features": "system:workflow",
+      "title": "Fix sync-from-base.bat : git pull avant lecture version base + version.json B0.35",
+      "description": "Le script sync-from-base.bat lisait version.json de worganic-base en local sans faire de git pull au préalable, ce qui causait une version stale même si la base avait été pushée. Fix : ajout de pushd/git pull --ff-only/popd au début du script, avant la lecture de BASE_VERSION. Mise à jour de version.json de B0.33 à B0.35 (les commits B0.34 et B0.35 avaient été poussés sans mettre à jour ce fichier). Ajout des 9 entrées manquantes dans data/base-propagation.json pour les versions B0.26 à B0.35. Ajout des entrées histoModif mod-039 et mod-040 absentes.",
+      "files": [
+        "version.json",
+        "data/base-propagation.json",
+        "data/histoModif.json"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "la version child n'est toujours pas à jour avec la base",
+      "startedAt": "2026-05-03T17:30:00.000Z",
+      "completedAt": "2026-05-03T18:00:00.000Z"
     }
   ]
 }
