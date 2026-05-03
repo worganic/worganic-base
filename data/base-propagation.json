@@ -286,6 +286,20 @@
         "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts"
       ],
       "propagationNote": "Mettre à jour les 3 fichiers du composant wo-action-history (filtres par période, fix styles select dark mode)."
+    },
+    {
+      "baseVersion": "B0.35",
+      "date": "2026-05-03T14:00:00Z",
+      "modRef": "",
+      "title": "sync-from-base.bat : git pull automatique avant lecture version",
+      "propagationRequired": false,
+      "syncedBy": [
+        "THI-V01"
+      ],
+      "propagationScope": [
+        "sync-from-base.bat"
+      ],
+      "propagationNote": "Remplacer sync-from-base.bat par la version de la base. Ajoute un git pull --ff-only sur worganic-base avant la lecture de BASE_VERSION, avec avertissement en cas d echec."
     }
   ]
 }
