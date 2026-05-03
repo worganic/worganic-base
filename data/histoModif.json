@@ -850,6 +850,28 @@
       "prompt": "ajoute dans le dossier doc un fichier infos-action-historique.md ou sont expliqué le mode de fonctionnement et de mise en place du système d'historisation des actions afin de pouvoir utilisé cet doc pour la mise en place futur de cette option dans des outils mise en place sur le site dans la version de base ou child.",
       "startedAt": "2026-05-03T17:00:00.000Z",
       "completedAt": "2026-05-03T15:51:42.794Z"
+    },
+    {
+      "id": "mod-035",
+      "version": "B0.32",
+      "date": "2026-05-03T16:25:24.680Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein"
+      ],
+      "features": "frankenstein:wo-action-history|admin",
+      "title": "Tracking actions admin/config dans wo-action-history",
+      "description": "Ajout du tracking WoActionHistoryService dans config.component.ts pour les 7 types d'actions : toggleHeaderIa, toggleWoActionHistoryNav, toggleProvider, toggleModel, onTicketsToggle, onRecetteWidgetToggle, et saveKeys (sauvegarde manuelle uniquement). Section admin/config ajoutée dans trackedTools du composant wo-action-history avec labels de champ et label de section. Les valeurs des clés API ne sont pas enregistrées dans le beforeState/afterState (sécurité), seulement le statut actif et la version.",
+      "files": [
+        "frankenstein/src/app/pages/user/config/config.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "en utilisant la doc @docs/infos-action-historique.md ajoute les actions du menu admin/config (/admin?tab=config)",
+      "startedAt": "2026-05-03T17:30:00.000Z",
+      "completedAt": "2026-05-03T16:25:24.682Z"
     }
   ]
 }

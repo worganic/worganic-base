@@ -56,6 +56,17 @@ export class WoActionHistoryComponent implements OnInit {
         { type: 'update', label: 'Modification document', undoable: true,  note: 'Restaure titre, description, catégorie, visibilité — contenu texte non inclus' },
         { type: 'delete', label: 'Suppression document',  undoable: false, note: 'Non réversible — contenu définitivement perdu' }
       ]
+    },
+    {
+      label: 'Admin › Config',
+      section: 'admin/config',
+      icon: 'settings',
+      colorText: 'text-amber-400',
+      colorBg: 'bg-amber-500/5 border-amber-500/15',
+      actions: [
+        { type: 'toggle', label: 'Toggle setting/outil/provider/modèle', undoable: false, note: 'Non réversible via undo — toggle manuel' },
+        { type: 'update', label: 'Sauvegarde clés API',                  undoable: false, note: 'Valeurs des clés non enregistrées, seulement le statut actif' }
+      ]
     }
   ];
 
@@ -171,7 +182,9 @@ export class WoActionHistoryComponent implements OnInit {
       username: 'Nom', email: 'Email', role: 'Rôle',
       name: 'Nom', description: 'Description', category: 'Catégorie',
       visible: 'Visibilité', visibility: 'Visibilité', title: 'Titre',
-      active: 'Actif', enabled: 'Activé', categoryId: 'Catégorie'
+      active: 'Actif', enabled: 'Activé', categoryId: 'Catégorie',
+      headerIaVisible: 'Header IA', appVersion: 'Version app',
+      geminiActive: 'Gemini actif', claudeActive: 'Claude actif'
     };
     return labels[field] || field;
   }
@@ -235,10 +248,10 @@ export class WoActionHistoryComponent implements OnInit {
 
   sectionLabel(section: string): string {
     const labels: Record<string, string> = {
-      'admin/users': 'Admin › Utilisateurs',
+      'admin/users':  'Admin › Utilisateurs',
       'admin/config': 'Admin › Config',
-      'documents': 'Documents',
-      'projets': 'Projets'
+      'documents':    'Documents',
+      'projets':      'Projets'
     };
     return labels[section] || section;
   }
