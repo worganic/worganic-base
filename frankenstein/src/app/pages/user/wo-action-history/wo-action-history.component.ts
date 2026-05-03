@@ -18,6 +18,46 @@ export class WoActionHistoryComponent implements OnInit {
   loading = signal(false);
   undoing = signal<string | null>(null);
   error = signal('');
+  showInfo = signal(false);
+
+  readonly trackedTools = [
+    {
+      label: 'Admin › Utilisateurs',
+      section: 'admin/users',
+      icon: 'manage_accounts',
+      colorText: 'text-red-400',
+      colorBg: 'bg-red-500/5 border-red-500/15',
+      actions: [
+        { type: 'create', label: 'Création',     undoable: true,  note: 'Supprime l\'utilisateur créé' },
+        { type: 'update', label: 'Modification', undoable: true,  note: 'Restaure username, email, rôle' },
+        { type: 'delete', label: 'Suppression',  undoable: false, note: 'Non réversible — mot de passe non récupérable' }
+      ]
+    },
+    {
+      label: 'Documents › Catégories',
+      section: 'documents',
+      icon: 'folder',
+      colorText: 'text-blue-400',
+      colorBg: 'bg-blue-500/5 border-blue-500/15',
+      actions: [
+        { type: 'create', label: 'Création catégorie',     undoable: true,  note: 'Supprime la catégorie créée' },
+        { type: 'update', label: 'Modification catégorie', undoable: true,  note: 'Restaure nom et description' },
+        { type: 'delete', label: 'Suppression catégorie',  undoable: false, note: 'Non réversible' }
+      ]
+    },
+    {
+      label: 'Documents › Documents',
+      section: 'documents',
+      icon: 'description',
+      colorText: 'text-sky-400',
+      colorBg: 'bg-sky-500/5 border-sky-500/15',
+      actions: [
+        { type: 'create', label: 'Création document',     undoable: true,  note: 'Supprime le document créé' },
+        { type: 'update', label: 'Modification document', undoable: true,  note: 'Restaure titre, description, catégorie, visibilité — contenu texte non inclus' },
+        { type: 'delete', label: 'Suppression document',  undoable: false, note: 'Non réversible — contenu définitivement perdu' }
+      ]
+    }
+  ];
 
   filterSectionValue = '';
   filterUserIdValue = '';
@@ -89,6 +129,57 @@ export class WoActionHistoryComponent implements OnInit {
     } finally {
       this.undoing.set(null);
     }
+  }
+
+  private readonly sensitiveFields = new Set(['password', 'token', 'secret', 'hash']);
+
+  private parseState(state: any): Record<string, any> | null {
+    if (!state) return null;
+    if (typeof state === 'string') {
+      try { return JSON.parse(state); } catch { return null; }
+    }
+    if (typeof state === 'object' && !Array.isArray(state)) return state;
+    return null;
+  }
+
+  getDiffFields(entry: WoActionEntry): { field: string; before: any; after: any }[] {
+    const before = this.parseState(entry.beforeState);
+    const after = this.parseState(entry.afterState);
+
+    if (entry.actionType === 'update' && before && after) {
+      const allKeys = new Set([...Object.keys(before), ...Object.keys(after)]);
+      return Array.from(allKeys)
+        .filter(k => !this.sensitiveFields.has(k))
+        .filter(k => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
+        .map(k => ({ field: k, before: before[k], after: after[k] }));
+    }
+    if (entry.actionType === 'create' && after) {
+      return Object.entries(after)
+        .filter(([k]) => !this.sensitiveFields.has(k))
+        .map(([k, v]) => ({ field: k, before: null, after: v }));
+    }
+    if (entry.actionType === 'delete' && before) {
+      return Object.entries(before)
+        .filter(([k]) => !this.sensitiveFields.has(k))
+        .map(([k, v]) => ({ field: k, before: v, after: null }));
+    }
+    return [];
+  }
+
+  fieldLabel(field: string): string {
+    const labels: Record<string, string> = {
+      username: 'Nom', email: 'Email', role: 'Rôle',
+      name: 'Nom', description: 'Description', category: 'Catégorie',
+      visible: 'Visibilité', visibility: 'Visibilité', title: 'Titre',
+      active: 'Actif', enabled: 'Activé', categoryId: 'Catégorie'
+    };
+    return labels[field] || field;
+  }
+
+  formatFieldValue(val: any): string {
+    if (val === null || val === undefined) return '—';
+    if (typeof val === 'boolean') return val ? 'Activé' : 'Désactivé';
+    return String(val);
   }
 
   actionTypeLabel(type: string): string {

@@ -247,6 +247,26 @@
                         </span>
                       </span>
                     </div>
+
+                    <!-- Diff fields -->
+                    @if (getDiffFields(entry).length > 0) {
+                      <div class="mt-2 pt-2 border-t border-light-border dark:border-white/5 flex flex-wrap gap-x-5 gap-y-1">
+                        @for (diff of getDiffFields(entry); track diff.field) {
+                          <span class="flex items-center gap-1.5 text-[11px]">
+                            <span class="text-light-text-muted dark:text-white/25 font-medium min-w-0">{{ fieldLabel(diff.field) }}</span>
+                            @if (diff.before !== null && diff.before !== undefined) {
+                              <span class="line-through text-red-400/70">{{ formatFieldValue(diff.before) }}</span>
+                            }
+                            @if (diff.before !== null && diff.before !== undefined && diff.after !== null && diff.after !== undefined) {
+                              <span class="dark:text-white/15">→</span>
+                            }
+                            @if (diff.after !== null && diff.after !== undefined) {
+                              <span class="text-emerald-400/80">{{ formatFieldValue(diff.after) }}</span>
+                            }
+                          </span>
+                        }
+                      </div>
+                    }
                   </div>
 
                   <!-- Undo action -->

@@ -704,6 +704,45 @@
       "prompt": "a chaque modification ou correction il faudrait que tu test que l'application puisse ce compilé, la ce n'est pas le cas, rajoute ce tests à chaque modification dans le claude.md et corrige le problème actuel: Application bundle generation failed... NG5002: Opening tag 'button' not terminated...",
       "startedAt": "2026-05-03T13:00:00.000Z",
       "completedAt": "2026-05-03T13:30:00.000Z"
+    },
+    {
+      "id": "mod-029",
+      "version": "B0.28",
+      "date": "2026-05-03T14:00:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": ["frankenstein"],
+      "features": "frankenstein:wo-action-history",
+      "title": "wo-action-history : affichage diff before/after par entrée",
+      "description": "Ajout de l'affichage des détails de modification dans chaque entrée de l'historique. Pour les actions 'update', affiche les champs modifiés avec ancienne valeur (barrée rouge) → nouvelle valeur (verte). Pour 'create', affiche les valeurs initiales. Pour 'delete', affiche les valeurs supprimées. Les champs sensibles (password, token, secret, hash) sont masqués. Méthodes ajoutées : getDiffFields(), fieldLabel(), formatFieldValue().",
+      "files": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "dans la page historique action, je vois la liste des actions mais pas le détails : dans cette exemple le mail du user à été modifié, j'ai besoin d'avoir cette information dans cette zone pour comprendre ce qu'il c'est passé. Améliore l'affichage ou l'enregistrement des actions si necessaire",
+      "startedAt": "2026-05-03T13:40:00.000Z",
+      "completedAt": "2026-05-03T14:00:00.000Z"
+    },
+    {
+      "id": "mod-030",
+      "version": "B0.28",
+      "date": "2026-05-03T14:30:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": ["frankenstein"],
+      "features": "frankenstein:wo-action-history",
+      "title": "Fix affichage diff : parse JSON string before/afterState",
+      "description": "Les colonnes JSON MySQL (before_state, after_state) étaient retournées comme strings par le serveur. getDiffFields() appelait Object.keys() sur la string brute, ce qui itérait caractère par caractère. Ajout de parseState() qui détecte si la valeur est une string JSON et la parse avant utilisation.",
+      "files": [
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "l'affichage est incompréhensif corrige ça",
+      "startedAt": "2026-05-03T14:15:00.000Z",
+      "completedAt": "2026-05-03T14:30:00.000Z"
     }
   ]
 }
