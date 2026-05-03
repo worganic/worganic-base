@@ -644,7 +644,8 @@ app.get('/api/config/keys', (req, res) => {
 
         // Config IA de l'utilisateur connecté
         const user = getSessionUser(req);
-        const userConfig = (user && user.config) ? user.config : {};
+        const _rawCfg = (user && user.config) ? user.config : {};
+        const userConfig = typeof _rawCfg === 'string' ? (() => { try { return JSON.parse(_rawCfg); } catch { return {}; } })() : _rawCfg;
         const apiKeys = userConfig.apiKeys || {};
         const cliConfig = userConfig.cliConfig || {};
 
@@ -678,6 +679,10 @@ app.get('/api/config/keys', (req, res) => {
                 tchat:   userEnabledTools.tchat   !== undefined ? userEnabledTools.tchat   : false,
                 actions: userEnabledTools.actions !== undefined ? userEnabledTools.actions : false
             },
+            // Onglets volet outils — settings globaux (conf.json)
+            enabledTabs: globalConf.enabledTabs || {},
+            // Navigation principale — settings globaux (conf.json)
+            navItems: globalConf.navItems || {},
             // Rétro-compatibilité config page
             ticketsEnabled: userEnabledTools.tickets !== undefined ? userEnabledTools.tickets : (globalConf.ticketsEnabled || false),
             recetteWidgetEnabled: userEnabledTools.recette !== undefined ? userEnabledTools.recette : (globalConf.recetteWidgetEnabled || false)
@@ -693,10 +698,11 @@ app.post('/api/config/keys', async (req, res) => {
     const user = getSessionUser(req);
     if (!user) return res.status(401).json({ error: 'Non authentifié' });
     try {
-        const { gemini, claude, cliConfig, appVersion, ticketsEnabled, recetteWidgetEnabled, enabledTools, headerIaVisible } = req.body;
+        const { gemini, claude, cliConfig, appVersion, ticketsEnabled, recetteWidgetEnabled, enabledTools, headerIaVisible, enabledTabs, navItems } = req.body;
 
         // ── Config IA propre à l'utilisateur ────────────────────────────────
-        const userConfig = { ...(user.config || {}) };
+        const rawCfg = user.config || {};
+        const userConfig = { ...(typeof rawCfg === 'string' ? (() => { try { return JSON.parse(rawCfg); } catch { return {}; } })() : rawCfg) };
         if (!userConfig.apiKeys) userConfig.apiKeys = {};
 
         if (gemini !== undefined) {
@@ -743,7 +749,8 @@ app.post('/api/config/keys', async (req, res) => {
         }
 
         // ── Settings globaux (conf.json) — tous les champs peuvent être mis à jour ──
-        if (appVersion !== undefined || ticketsEnabled !== undefined || recetteWidgetEnabled !== undefined || headerIaVisible !== undefined) {
+        if (appVersion !== undefined || ticketsEnabled !== undefined || recetteWidgetEnabled !== undefined ||
+            headerIaVisible !== undefined || enabledTabs !== undefined || navItems !== undefined) {
             let globalConf = {};
             if (fs.existsSync(CONFIG_FILE)) {
                 try { globalConf = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8')); } catch {}
@@ -754,6 +761,12 @@ app.post('/api/config/keys', async (req, res) => {
             if (ticketsEnabled !== undefined) globalConf.ticketsEnabled = ticketsEnabled;
             if (recetteWidgetEnabled !== undefined) globalConf.recetteWidgetEnabled = recetteWidgetEnabled;
             if (headerIaVisible !== undefined) globalConf.headerIaVisible = Boolean(headerIaVisible);
+            if (enabledTabs !== undefined && typeof enabledTabs === 'object') {
+                globalConf.enabledTabs = { ...(globalConf.enabledTabs || {}), ...enabledTabs };
+            }
+            if (navItems !== undefined && typeof navItems === 'object') {
+                globalConf.navItems = { ...(globalConf.navItems || {}), ...navItems };
+            }
             globalConf.lastUpdated = new Date().toISOString();
             fs.writeFileSync(CONFIG_FILE, JSON.stringify(globalConf, null, 2), 'utf8');
         }
@@ -2981,13 +2994,19 @@ async function loadUsersFromDB() {
         const [rows] = await pool.query(
             'SELECT id, username, email, password_hash, role, created_at, last_login, config FROM users'
         );
-        _usersCache = rows.map(r => ({
-            id: r.id, username: r.username, email: r.email,
-            password: r.password_hash, role: r.role,
-            createdAt: r.created_at ? r.created_at.toISOString() : null,
-            lastLogin: r.last_login ? r.last_login.toISOString() : null,
-            config: r.config || {}
-        }));
+        _usersCache = rows.map(r => {
+            let cfg = r.config || {};
+            if (typeof cfg === 'string') {
+                try { cfg = JSON.parse(cfg); } catch { cfg = {}; }
+            }
+            return {
+                id: r.id, username: r.username, email: r.email,
+                password: r.password_hash, role: r.role,
+                createdAt: r.created_at ? r.created_at.toISOString() : null,
+                lastLogin: r.last_login ? r.last_login.toISOString() : null,
+                config: cfg
+            };
+        });
         return _usersCache;
     } catch (e) {
         console.error('[AUTH] Error loading users from DB:', e.message);

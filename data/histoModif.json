@@ -691,7 +691,10 @@
       "date": "2026-05-03T13:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
-      "scope": ["frankenstein", "system"],
+      "scope": [
+        "frankenstein",
+        "system"
+      ],
       "features": "frankenstein:wo-action-history,system:workflow",
       "title": "Fix NG5002 + règle vérification build Angular dans CLAUDE.md",
       "description": "Correction de l'erreur NG5002 (Opening tag 'button' not terminated) dans wo-action-history.component.html : le binding [class.border-indigo-500/40] contient un '/' incompatible avec la syntaxe [class.xxx] d'Angular. Remplacement par [ngClass] avec expression conditionnelle. Ajout dans CLAUDE.md d'une règle obligatoire de vérification de compilation Angular après chaque modification (ng build, non tsc --noEmit), avec documentation du piège Tailwind '/' et de la commande exacte à utiliser.",
@@ -711,7 +714,9 @@
       "date": "2026-05-03T14:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["frankenstein"],
+      "scope": [
+        "frankenstein"
+      ],
       "features": "frankenstein:wo-action-history",
       "title": "wo-action-history : affichage diff before/after par entrée",
       "description": "Ajout de l'affichage des détails de modification dans chaque entrée de l'historique. Pour les actions 'update', affiche les champs modifiés avec ancienne valeur (barrée rouge) → nouvelle valeur (verte). Pour 'create', affiche les valeurs initiales. Pour 'delete', affiche les valeurs supprimées. Les champs sensibles (password, token, secret, hash) sont masqués. Méthodes ajoutées : getDiffFields(), fieldLabel(), formatFieldValue().",
@@ -731,7 +736,9 @@
       "date": "2026-05-03T14:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
-      "scope": ["frankenstein"],
+      "scope": [
+        "frankenstein"
+      ],
       "features": "frankenstein:wo-action-history",
       "title": "Fix affichage diff : parse JSON string before/afterState",
       "description": "Les colonnes JSON MySQL (before_state, after_state) étaient retournées comme strings par le serveur. getDiffFields() appelait Object.keys() sur la string brute, ce qui itérait caractère par caractère. Ajout de parseState() qui détecte si la valeur est une string JSON et la parse avant utilisation.",
@@ -750,7 +757,10 @@
       "date": "2026-05-03T15:30:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["frankenstein", "data"],
+      "scope": [
+        "frankenstein",
+        "data"
+      ],
       "features": "frankenstein:admin|site,data:theme",
       "title": "Boutons thème adaptatif : variable --btn-text-color configurable",
       "description": "Ajout de la variable CSS --btn-text-color (configurable dans admin/thème, auto-calculée depuis la luminance de --tw-primary). Ajout de 'btn-text' dans Tailwind config. Remplacement de text-white par text-white dark:text-btn-text sur tous les boutons primaires (bg-light-primary dark:bg-primary) dans tout le projet. Quand le fond du bouton est clair (thème Emerald, Amber, Cyan), le texte s'adapte automatiquement. La couleur est configurable manuellement dans le panneau Thème de l'administration, et auto-calculée lors du changement de preset.",
@@ -784,7 +794,9 @@
       "date": "2026-05-03T16:00:00.000Z",
       "type": "fix",
       "commitType": "FIX",
-      "scope": ["frankenstein"],
+      "scope": [
+        "frankenstein"
+      ],
       "features": "frankenstein:admin",
       "title": "Fix boutons admin-theme : btn-text-color non appliqué",
       "description": "Les boutons de sauvegarde dans admin-theme.component.html utilisaient [ngClass]='buttonTextClass' (retournant text-gray-900 ou text-white) au lieu de la variable CSS --btn-text-color. Remplacement par text-white dark:text-btn-text. Même correction pour le bouton 'Bouton accent' dans l'aperçu (utilisait bg-accent text-white hardcodé).",
@@ -796,6 +808,27 @@
       "prompt": "cela fonctionne sur certain bouton mais sur d'autre non — bouton accent et sauvegarder le thème dans admin-theme KO",
       "startedAt": "2026-05-03T15:45:00.000Z",
       "completedAt": "2026-05-03T16:00:00.000Z"
+    },
+    {
+      "id": "mod-033",
+      "version": "B0.30",
+      "date": "2026-05-03T16:30:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "server"
+      ],
+      "features": "server:config",
+      "title": "Fix persistance config admin : enabledTabs + navItems en BDD",
+      "description": "Les settings 'enabledTabs' (visibilité onglets volet outils) et 'navItems' (navigation principale, ex: woActionHistory) étaient envoyés par le frontend via POST /api/config/keys mais le serveur les ignorait complètement — ils n'étaient ni dans les variables destructurées, ni sauvegardés. Fix : ajout dans la destructuration du body, sauvegarde dans conf.json (merge partiel pour ne pas écraser les clés existantes), et retour dans le GET. Désormais ces settings survivent aux redémarrages.",
+      "files": [
+        "server/server-data.js"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "lorsque j'enregistre des paramètres dans admin/config je veux que les données soi gardé en mémoire (bdd) pour que lorsque je relance le projet, celui ci reprenne la config enregistré comme c'est le cas pour les thèmes (color)",
+      "startedAt": "2026-05-03T16:10:00.000Z",
+      "completedAt": "2026-05-03T15:46:38.127Z"
     }
   ]
 }
