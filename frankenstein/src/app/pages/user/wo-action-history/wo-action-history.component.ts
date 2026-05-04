@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WoActionHistoryService, WoActionEntry } from '../../../core/services/wo-action-history.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ConfigService } from '../../../core/services/config.service';
 
 @Component({
   selector: 'app-wo-action-history',
@@ -14,6 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class WoActionHistoryComponent implements OnInit {
   private historyService = inject(WoActionHistoryService);
   private auth = inject(AuthService);
+  private configService = inject(ConfigService);
 
   loading = signal(false);
   undoing = signal<string | null>(null);
@@ -65,7 +67,7 @@ export class WoActionHistoryComponent implements OnInit {
       colorText: 'text-amber-400',
       colorBg: 'bg-amber-500/5 border-amber-500/15',
       actions: [
-        { type: 'toggle', label: 'Toggle setting/outil/provider/modèle', undoable: false, note: 'Non réversible via undo — toggle manuel' },
+        { type: 'toggle', label: 'Toggle setting/outil/provider/modèle', undoable: true,  note: 'Restaure l\'état précédent du toggle — undo/redo illimité' },
         { type: 'update', label: 'Sauvegarde clés API',                  undoable: false, note: 'Valeurs des clés non enregistrées, seulement le statut actif' }
       ]
     }
@@ -182,6 +184,7 @@ export class WoActionHistoryComponent implements OnInit {
     this.error.set('');
     try {
       await this.historyService.undo(entry.id);
+      if (entry.section === 'admin/config') this.configService.loadCliConfig();
     } catch (e: any) {
       this.error.set(e?.error?.error || "Erreur lors de l'annulation");
     } finally {
@@ -195,6 +198,7 @@ export class WoActionHistoryComponent implements OnInit {
     this.error.set('');
     try {
       await this.historyService.redo(entry.id);
+      if (entry.section === 'admin/config') this.configService.loadCliConfig();
     } catch (e: any) {
       this.error.set(e?.error?.error || "Erreur lors du rétablissement");
     } finally {

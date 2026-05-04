@@ -1049,6 +1049,30 @@
       "prompt": "dans l outils historique on peux annuler une action mais il faudrais aussi pouvoir la rétablir après annulation, ajoute cette option sur toutes les actions dans wo-action-history en fesant la modif dans la base qu on repercutra ensuite via pull dans les child",
       "startedAt": "2026-05-04T00:00:00.000Z",
       "completedAt": "2026-05-03T23:48:39.967Z"
+    },
+    {
+      "id": "mod-044",
+      "version": "B0.39",
+      "date": "2026-05-04T08:15:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": [
+        "frankenstein",
+        "server"
+      ],
+      "features": "frankenstein:admin|wo-action-history,server:wo-action-history",
+      "title": "Admin/Config : tracking + undo/redo des toggles + migration redo_action",
+      "description": "Les toggles de admin/config (Zone IA header, lien nav Historique, Tickets, Recette, providers, modèles) n'apparaissaient pas dans wo-action-history car la colonne redo_action ajoutée en B0.38 n'avait pas été créée sur les BDD existantes — le INSERT échouait silencieusement. Ajout d'une migration ALTER TABLE conditionnelle dans server-data.js qui détecte l'absence de la colonne et la crée. En parallèle, passage de undoable=false à undoable=true pour tous les toggles admin/config avec undoAction/redoAction pointant vers POST /api/config/keys (rétablit l'état précédent/nouveau). Après undo/redo sur une entry section='admin/config', wo-action-history.component appelle ConfigService.loadCliConfig() pour rafraîchir les signaux et l'UI (header IA, nav, etc.). Mise à jour du tableau trackedTools : admin/config toggle passe à undoable: true.",
+      "files": [
+        "server/server-data.js",
+        "frankenstein/src/app/pages/user/config/config.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-opus-4-7",
+      "prompt": "les actions de la section admin/config ne fonctionne pas corectement, exemple j'active ou desactive le toogle \"Zone IA dans le header\", l'action n'est pas repertorié dans l'historique des action \"wo-action-history\". Il faut aussi pouvoir annulé l'action mais aussi pouvoir la rétablir si l'action à été annulé",
+      "startedAt": "2026-05-04T07:48:51.000Z",
+      "completedAt": "2026-05-04T08:15:00.000Z"
     }
   ]
 }

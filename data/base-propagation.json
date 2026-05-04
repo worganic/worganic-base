@@ -300,6 +300,17 @@
         "sync-from-base.bat"
       ],
       "propagationNote": "Remplacer sync-from-base.bat par la version de la base. Ajoute un git pull --ff-only sur worganic-base avant la lecture de BASE_VERSION, avec avertissement en cas d echec."
+    },
+    {
+      "baseVersion": "B0.39",
+      "date": "2026-05-04T08:15:00Z",
+      "modRef": "mod-044",
+      "title": "Migration redo_action + tracking undoable des toggles admin/config",
+      "propagationRequired": true,
+      "propagationScope": [
+        "server/server-data.js"
+      ],
+      "propagationNote": "Sur server/server-data.js : récupérer le bloc de migration ALTER TABLE wo_action_history ADD COLUMN redo_action ajouté juste après le CREATE TABLE IF NOT EXISTS wo_action_history (autour des lignes 5456+). Ce bloc détecte via INFORMATION_SCHEMA si la colonne redo_action existe et l'ajoute sinon. Sans cette migration, tous les INSERT dans wo_action_history échouent silencieusement sur les BDD child créées avant B0.38, ce qui empêche tout tracking d'action. Au choix : redémarrer le serveur du child après pull pour appliquer auto, OU exécuter manuellement: ALTER TABLE wo_action_history ADD COLUMN redo_action JSON DEFAULT NULL AFTER undo_action."
     }
   ]
 }

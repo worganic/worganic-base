@@ -5455,6 +5455,21 @@ app.listen(PORT, async () => {
         )
     `).catch(e => console.error('[DB] wo_action_history init error:', e.message));
 
+    // Migration : ajout de redo_action sur les DBs créées avant B0.38
+    try {
+        const [colRows] = await pool.query(`
+            SELECT COUNT(*) AS exists_col
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME   = 'wo_action_history'
+              AND COLUMN_NAME  = 'redo_action'
+        `);
+        if (colRows[0].exists_col === 0) {
+            await pool.query(`ALTER TABLE wo_action_history ADD COLUMN redo_action JSON DEFAULT NULL AFTER undo_action`);
+            console.log('[DB] wo_action_history: colonne redo_action ajoutée (migration B0.38)');
+        }
+    } catch (e) { console.error('[DB] wo_action_history migration redo_action error:', e.message); }
+
     console.log(`
 +==========================================+
 |   Frankenstein - DATA Server (Cloud)         |
