@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService, Project } from '../../../core/services/project.service';
@@ -6,6 +6,7 @@ import { ProjectFilesService, FileNode } from '../../../core/services/project-fi
 import { ConfigService } from '../../../core/services/config.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LayoutService } from '../../../core/services/layout.service';
+import { WoActionHistoryService } from '../../../core/services/wo-action-history.service';
 
 import { ProjetToolbarComponent } from './components/projet-toolbar/projet-toolbar.component';
 import { ProjetSidebarComponent, DragDropEvent } from './components/projet-sidebar/projet-sidebar.component';
@@ -42,6 +43,7 @@ export class ProjetEditorComponent implements OnInit, OnDestroy {
   private pendingFolders = new Set<string>();
   private isSaving = false;
   private pendingSections: SectionInfo[] | null = null;
+  private history = inject(WoActionHistoryService);
 
   constructor(
     private route: ActivatedRoute,
@@ -158,8 +160,127 @@ export class ProjetEditorComponent implements OnInit, OnDestroy {
       .replace(/-+/g, '-').trim();
   }
 
+  // ── Tracking helpers ───────────────────────────────────────
+  private buildOldContentMap(nodes: FileNode[]): Map<string, string> {
+    const map = new Map<string, string>();
+    const walk = (ns: FileNode[]) => {
+      for (const n of ns) {
+        if (n.type === 'file' && !this.projectFilesService.isImageFile(n.name)) {
+          map.set(n.id, n.content || '');
+        }
+        if (n.children) walk(n.children);
+      }
+    };
+    walk(nodes);
+    return map;
+  }
+
+  private trackContext() {
+    return {
+      projectId: this.projectFolderName,
+      projectName: this.project()?.title || this.projectFolderName,
+    };
+  }
+
+  private async trackContentUpdate(file: FileNode, folderName: string, oldContent: string, newContent: string) {
+    if (oldContent === newContent) return;
+    try {
+      await this.history.track({
+        section: 'projets',
+        subsection: folderName,
+        actionType: 'update',
+        label: `Modification de "${folderName}"`,
+        entityType: 'file',
+        entityId: file.id,
+        entityLabel: file.name,
+        beforeState: { content: oldContent, name: file.name },
+        afterState: { content: newContent, name: file.name },
+        context: this.trackContext(),
+        undoable: true,
+        undoAction: {
+          endpoint: `/api/file-projects/${this.projectFolderName}/files/${file.id}`,
+          method: 'PUT',
+          payload: { content: oldContent }
+        },
+        redoAction: {
+          endpoint: `/api/file-projects/${this.projectFolderName}/files/${file.id}`,
+          method: 'PUT',
+          payload: { content: newContent }
+        }
+      });
+    } catch (e) { console.warn('[Editor] track content update failed:', e); }
+  }
+
+  private async trackFolderRename(folderId: string, oldName: string, newName: string) {
+    try {
+      await this.history.track({
+        section: 'projets',
+        subsection: newName,
+        actionType: 'update',
+        label: `Renommage de section "${oldName}" → "${newName}"`,
+        entityType: 'folder',
+        entityId: folderId,
+        entityLabel: newName,
+        beforeState: { name: oldName },
+        afterState: { name: newName },
+        context: this.trackContext(),
+        undoable: true,
+        undoAction: {
+          endpoint: `/api/file-projects/${this.projectFolderName}/folders/${folderId}`,
+          method: 'PATCH',
+          payload: { name: oldName }
+        },
+        redoAction: {
+          endpoint: `/api/file-projects/${this.projectFolderName}/folders/${folderId}`,
+          method: 'PATCH',
+          payload: { name: newName }
+        }
+      });
+    } catch (e) { console.warn('[Editor] track rename failed:', e); }
+  }
+
+  private async trackFolderCreate(folder: FileNode) {
+    try {
+      await this.history.track({
+        section: 'projets',
+        subsection: folder.name,
+        actionType: 'create',
+        label: `Création de section "${folder.name}"`,
+        entityType: 'folder',
+        entityId: folder.id,
+        entityLabel: folder.name,
+        afterState: { name: folder.name },
+        context: this.trackContext(),
+        undoable: true,
+        undoAction: {
+          endpoint: `/api/file-projects/${this.projectFolderName}/folders/${folder.id}`,
+          method: 'DELETE'
+        }
+      });
+    } catch (e) { console.warn('[Editor] track create failed:', e); }
+  }
+
+  private async trackFolderDelete(folder: FileNode) {
+    try {
+      await this.history.track({
+        section: 'projets',
+        subsection: folder.name,
+        actionType: 'delete',
+        label: `Suppression de section "${folder.name}"`,
+        entityType: 'folder',
+        entityId: folder.id,
+        entityLabel: folder.name,
+        beforeState: { name: folder.name },
+        context: this.trackContext(),
+        undoable: false
+      });
+    } catch (e) { console.warn('[Editor] track delete failed:', e); }
+  }
+
   private async processSectionsChange(sections: SectionInfo[]) {
     let currentFiles = this.files();
+    // Snapshot of file contents BEFORE this save batch — used to compute diffs for tracking
+    const oldContentMap = this.buildOldContentMap(currentFiles);
     // Mutable copy so we can patch folderId/fileId after rename resolution
     const resolved = sections.map(s => ({ ...s }));
 
@@ -336,7 +457,10 @@ export class ProjetEditorComponent implements OnInit, OnDestroy {
         for (const op of renameOps) {
           try {
             console.log(`[EDITOR] Renaming folder ${op.folderId} to "${op.newName}"...`);
+            const oldFolder = this.findFolderById(op.folderId, currentFiles);
+            const oldName = oldFolder?.name || '';
             await this.projectFilesService.renameFolder(this.projectFolderName, op.folderId, op.newName);
+            this.trackFolderRename(op.folderId, oldName, op.newName);
           } catch (e) {
             console.error('Rename failed:', e);
             hasError = true;
@@ -348,6 +472,7 @@ export class ProjetEditorComponent implements OnInit, OnDestroy {
           try {
             console.log(`[EDITOR] Deleting orphan folder ${folder.id} (${folder.name})...`);
             await this.projectFilesService.deleteFolder(this.projectFolderName, folder.id);
+            this.trackFolderDelete(folder);
           } catch (e) {
             console.error('Deletion failed:', e);
           }
@@ -365,6 +490,7 @@ export class ProjetEditorComponent implements OnInit, OnDestroy {
             const folder = await this.projectFilesService.createFolder(this.projectFolderName, { name: section.folderName, parentId });
             newFolderIds.set(fullPath, folder.id);
             section.folderId = folder.id;
+            this.trackFolderCreate(folder);
             const file = (folder.children || []).find(c => c.type === 'file') || await this.projectFilesService.createFile(this.projectFolderName, { name: 'contenu', parentId: folder.id, content: section.content });
             section.fileId = file.id;
           } catch (e) {
@@ -406,14 +532,24 @@ export class ProjetEditorComponent implements OnInit, OnDestroy {
       // 5. Save content (main content and additional files)
       for (const s of resolved) {
         if (s.fileId) {
-          await this.projectFilesService.updateFile(this.projectFolderName, s.fileId, s.content);
+          const oldContent = oldContentMap.get(s.fileId) ?? '';
+          if (oldContent !== s.content) {
+            await this.projectFilesService.updateFile(this.projectFolderName, s.fileId, s.content);
+            const fileNode = { id: s.fileId, name: 'contenu.md', type: 'file' as const, path: '', order: 0 };
+            this.trackContentUpdate(fileNode, s.folderName, oldContent, s.content);
+          }
         }
-        
+
         // Save additional files
         if (s.folderId && s.additionalFiles && s.additionalFiles.length > 0) {
           for (const af of s.additionalFiles) {
             if (af.fileId) {
-              await this.projectFilesService.updateFile(this.projectFolderName, af.fileId, af.content);
+              const oldContent = oldContentMap.get(af.fileId) ?? '';
+              if (oldContent !== af.content) {
+                await this.projectFilesService.updateFile(this.projectFolderName, af.fileId, af.content);
+                const fileNode = { id: af.fileId, name: af.name, type: 'file' as const, path: '', order: 0 };
+                this.trackContentUpdate(fileNode, `${s.folderName} › ${af.name}`, oldContent, af.content);
+              }
             } else {
               try {
                 console.log(`[EDITOR] Creating additional file "${af.name}" in folder ${s.folderId}...`);

@@ -61,6 +61,19 @@ export class WoActionHistoryComponent implements OnInit {
       ]
     },
     {
+      label: 'Projets › Éditeur',
+      section: 'projets',
+      icon: 'edit_note',
+      colorText: 'text-emerald-400',
+      colorBg: 'bg-emerald-500/5 border-emerald-500/15',
+      actions: [
+        { type: 'create', label: 'Création section',     undoable: true,  note: 'Supprime la section créée' },
+        { type: 'update', label: 'Renommage section',    undoable: true,  note: 'Restaure le nom précédent' },
+        { type: 'update', label: 'Modification contenu', undoable: true,  note: 'Restaure le contenu précédent — diff ligne par ligne' },
+        { type: 'delete', label: 'Suppression section',  undoable: false, note: 'Non réversible — perte des sous-sections et fichiers' }
+      ]
+    },
+    {
       label: 'Admin › Config',
       section: 'admin/config',
       icon: 'settings',
@@ -185,6 +198,7 @@ export class WoActionHistoryComponent implements OnInit {
     try {
       await this.historyService.undo(entry.id);
       if (entry.section === 'admin/config') this.configService.loadCliConfig();
+      await this.loadHistory();
     } catch (e: any) {
       this.error.set(e?.error?.error || "Erreur lors de l'annulation");
     } finally {
@@ -199,6 +213,7 @@ export class WoActionHistoryComponent implements OnInit {
     try {
       await this.historyService.redo(entry.id);
       if (entry.section === 'admin/config') this.configService.loadCliConfig();
+      await this.loadHistory();
     } catch (e: any) {
       this.error.set(e?.error?.error || "Erreur lors du rétablissement");
     } finally {
@@ -207,6 +222,80 @@ export class WoActionHistoryComponent implements OnInit {
   }
 
   private readonly sensitiveFields = new Set(['password', 'token', 'secret', 'hash']);
+  // Champs affichés via le diff ligne-à-ligne (git-like) au lieu du diff inline
+  private readonly longTextFields = new Set(['content']);
+
+  expandedDiffs = signal<Set<string>>(new Set());
+
+  toggleDiff(entryId: string) {
+    this.expandedDiffs.update(set => {
+      const next = new Set(set);
+      if (next.has(entryId)) next.delete(entryId); else next.add(entryId);
+      return next;
+    });
+  }
+
+  isDiffExpanded(entryId: string): boolean {
+    return this.expandedDiffs().has(entryId);
+  }
+
+  hasContentDiff(entry: WoActionEntry): boolean {
+    const before = this.parseState(entry.beforeState);
+    const after = this.parseState(entry.afterState);
+    const b = before?.['content'];
+    const a = after?.['content'];
+    if (typeof b !== 'string' && typeof a !== 'string') return false;
+    return (b ?? '') !== (a ?? '');
+  }
+
+  // Diff ligne-à-ligne (style git) basé sur LCS
+  getContentDiff(entry: WoActionEntry): { type: 'same' | 'add' | 'del'; text: string; oldNum: number; newNum: number }[] {
+    const before = this.parseState(entry.beforeState);
+    const after = this.parseState(entry.afterState);
+    const beforeText = typeof before?.['content'] === 'string' ? before!['content'] : '';
+    const afterText  = typeof after?.['content']  === 'string' ? after!['content']  : '';
+    if (beforeText === afterText) return [];
+
+    const a = beforeText.split('\n');
+    const b = afterText.split('\n');
+    const n = a.length, m = b.length;
+
+    // LCS DP — coût mémoire n*m, acceptable pour fichiers <~2000 lignes
+    const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+    for (let i = n - 1; i >= 0; i--) {
+      for (let j = m - 1; j >= 0; j--) {
+        dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+
+    const result: { type: 'same' | 'add' | 'del'; text: string; oldNum: number; newNum: number }[] = [];
+    let i = 0, j = 0, oldNum = 1, newNum = 1;
+    while (i < n && j < m) {
+      if (a[i] === b[j]) {
+        result.push({ type: 'same', text: a[i], oldNum: oldNum++, newNum: newNum++ });
+        i++; j++;
+      } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+        result.push({ type: 'del', text: a[i], oldNum: oldNum++, newNum: 0 });
+        i++;
+      } else {
+        result.push({ type: 'add', text: b[j], oldNum: 0, newNum: newNum++ });
+        j++;
+      }
+    }
+    while (i < n) result.push({ type: 'del', text: a[i++], oldNum: oldNum++, newNum: 0 });
+    while (j < m) result.push({ type: 'add', text: b[j++], oldNum: 0, newNum: newNum++ });
+    return result;
+  }
+
+  diffStats(entry: WoActionEntry): { adds: number; dels: number } {
+    const lines = this.getContentDiff(entry);
+    let adds = 0, dels = 0;
+    for (const l of lines) {
+      if (l.type === 'add') adds++;
+      else if (l.type === 'del') dels++;
+    }
+    return { adds, dels };
+  }
 
   private parseState(state: any): Record<string, any> | null {
     if (!state) return null;
@@ -224,18 +313,18 @@ export class WoActionHistoryComponent implements OnInit {
     if (entry.actionType === 'update' && before && after) {
       const allKeys = new Set([...Object.keys(before), ...Object.keys(after)]);
       return Array.from(allKeys)
-        .filter(k => !this.sensitiveFields.has(k))
+        .filter(k => !this.sensitiveFields.has(k) && !this.longTextFields.has(k))
         .filter(k => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
         .map(k => ({ field: k, before: before[k], after: after[k] }));
     }
     if (entry.actionType === 'create' && after) {
       return Object.entries(after)
-        .filter(([k]) => !this.sensitiveFields.has(k))
+        .filter(([k]) => !this.sensitiveFields.has(k) && !this.longTextFields.has(k))
         .map(([k, v]) => ({ field: k, before: null, after: v }));
     }
     if (entry.actionType === 'delete' && before) {
       return Object.entries(before)
-        .filter(([k]) => !this.sensitiveFields.has(k))
+        .filter(([k]) => !this.sensitiveFields.has(k) && !this.longTextFields.has(k))
         .map(([k, v]) => ({ field: k, before: v, after: null }));
     }
     return [];
@@ -262,7 +351,8 @@ export class WoActionHistoryComponent implements OnInit {
   actionTypeLabel(type: string): string {
     const labels: Record<string, string> = {
       create: 'Création', update: 'Modification', delete: 'Suppression',
-      toggle: 'Activation', upload: 'Import', navigate: 'Navigation'
+      toggle: 'Activation', upload: 'Import', navigate: 'Navigation',
+      undo: 'Annulation', redo: 'Rétablissement'
     };
     return labels[type] || type;
   }
@@ -270,7 +360,8 @@ export class WoActionHistoryComponent implements OnInit {
   actionTypeIcon(type: string): string {
     const icons: Record<string, string> = {
       create: 'add_circle', update: 'edit', delete: 'delete',
-      toggle: 'toggle_on', upload: 'upload_file', navigate: 'navigation'
+      toggle: 'toggle_on', upload: 'upload_file', navigate: 'navigation',
+      undo: 'undo', redo: 'redo'
     };
     return icons[type] || 'history';
   }
@@ -282,7 +373,9 @@ export class WoActionHistoryComponent implements OnInit {
       delete: 'text-red-400',
       toggle: 'text-violet-400',
       upload: 'text-amber-400',
-      navigate: 'text-gray-400'
+      navigate: 'text-gray-400',
+      undo: 'text-orange-400',
+      redo: 'text-cyan-400'
     };
     return colors[type] || 'text-gray-400';
   }
@@ -294,7 +387,9 @@ export class WoActionHistoryComponent implements OnInit {
       delete: 'bg-red-500/10 border-red-500/20',
       toggle: 'bg-violet-500/10 border-violet-500/20',
       upload: 'bg-amber-500/10 border-amber-500/20',
-      navigate: 'bg-gray-500/10 border-gray-500/20'
+      navigate: 'bg-gray-500/10 border-gray-500/20',
+      undo: 'bg-orange-500/10 border-orange-500/20',
+      redo: 'bg-cyan-500/10 border-cyan-500/20'
     };
     return colors[type] || 'bg-gray-500/10 border-gray-500/20';
   }

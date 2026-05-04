@@ -332,6 +332,53 @@
                         }
                       </div>
                     }
+
+                    <!-- Content diff (git-like, line-by-line) -->
+                    @if (hasContentDiff(entry)) {
+                      <div class="mt-2 pt-2 border-t border-light-border dark:border-white/5">
+                        <button (click)="toggleDiff(entry.id)"
+                                class="flex items-center gap-2 text-[11px] text-light-text-muted dark:text-white/40 hover:text-light-primary dark:hover:text-primary transition-colors">
+                          <span class="material-symbols-outlined text-xs">
+                            {{ isDiffExpanded(entry.id) ? 'expand_more' : 'chevron_right' }}
+                          </span>
+                          <span>Diff contenu</span>
+                          <span class="text-emerald-400/70 font-mono">+{{ diffStats(entry).adds }}</span>
+                          <span class="text-red-400/70 font-mono">−{{ diffStats(entry).dels }}</span>
+                        </button>
+                        @if (isDiffExpanded(entry.id)) {
+                          <div class="mt-2 rounded-lg border border-light-border dark:border-white/10 overflow-hidden bg-light-background dark:bg-background font-mono text-[11px] leading-[1.5]">
+                            @for (line of getContentDiff(entry); track $index) {
+                              <div class="flex"
+                                   [ngClass]="{
+                                     'bg-emerald-500/10': line.type === 'add',
+                                     'bg-red-500/10':     line.type === 'del'
+                                   }">
+                                <span class="flex-shrink-0 w-10 px-1.5 text-right text-light-text-muted dark:text-white/25 select-none border-r border-light-border dark:border-white/5">
+                                  {{ line.oldNum > 0 ? line.oldNum : '' }}
+                                </span>
+                                <span class="flex-shrink-0 w-10 px-1.5 text-right text-light-text-muted dark:text-white/25 select-none border-r border-light-border dark:border-white/5">
+                                  {{ line.newNum > 0 ? line.newNum : '' }}
+                                </span>
+                                <span class="flex-shrink-0 w-5 text-center select-none"
+                                      [ngClass]="{
+                                        'text-emerald-400': line.type === 'add',
+                                        'text-red-400':     line.type === 'del',
+                                        'text-light-text-muted dark:text-white/20': line.type === 'same'
+                                      }">
+                                  {{ line.type === 'add' ? '+' : line.type === 'del' ? '−' : ' ' }}
+                                </span>
+                                <span class="flex-1 px-2 whitespace-pre-wrap break-all"
+                                      [ngClass]="{
+                                        'text-emerald-300/90': line.type === 'add',
+                                        'text-red-300/90':     line.type === 'del',
+                                        'text-light-text/80 dark:text-white/60': line.type === 'same'
+                                      }">{{ line.text || ' ' }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
                   </div>
 
                   <!-- Undo / Redo actions -->

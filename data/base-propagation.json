@@ -311,6 +311,19 @@
         "server/server-data.js"
       ],
       "propagationNote": "Sur server/server-data.js : récupérer le bloc de migration ALTER TABLE wo_action_history ADD COLUMN redo_action ajouté juste après le CREATE TABLE IF NOT EXISTS wo_action_history (autour des lignes 5456+). Ce bloc détecte via INFORMATION_SCHEMA si la colonne redo_action existe et l'ajoute sinon. Sans cette migration, tous les INSERT dans wo_action_history échouent silencieusement sur les BDD child créées avant B0.38, ce qui empêche tout tracking d'action. Au choix : redémarrer le serveur du child après pull pour appliquer auto, OU exécuter manuellement: ALTER TABLE wo_action_history ADD COLUMN redo_action JSON DEFAULT NULL AFTER undo_action."
+    },
+    {
+      "baseVersion": "B0.40",
+      "date": "2026-05-04T09:50:00Z",
+      "modRef": "",
+      "title": "Projet-editor : tracking before/after + diff git-like dans wo-action-history",
+      "propagationRequired": true,
+      "propagationScope": [
+        "frankenstein/src/app/pages/user/projet-editor/projet-editor.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.html"
+      ],
+      "propagationNote": "Trois fichiers à propager. (1) projet-editor.component.ts : ajout de l'injection de WoActionHistoryService et de quatre helpers (trackContentUpdate/Rename/Create/Delete + buildOldContentMap + trackContext). Snapshot des contenus de fichiers AVANT processSectionsChange (oldContentMap) puis appel des helpers après chaque opération réussie (rename/delete/create + updateFile main et additional). Toutes les actions sont undoables sauf delete (perte des sous-fichiers). (2) wo-action-history.component.ts : ajout d'une entrée 'projets' dans trackedTools, ensemble longTextFields = ['content'] exclu du diff inline, et signal expandedDiffs avec helpers toggleDiff/isDiffExpanded/hasContentDiff/getContentDiff (LCS line-by-line)/diffStats. (3) wo-action-history.component.html : nouveau bloc \"Content diff\" inséré juste après le bloc \"Diff fields\" (chevron + compteur +N/-N + tableau ligne-à-ligne avec gutters numérotés old/new style git, vert pour adds rouge pour dels)."
     }
   ]
 }
