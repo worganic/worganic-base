@@ -1114,6 +1114,27 @@
       "prompt": "j'ai créé un dossier @docs/structure pour l'ensemble des spécifications des components du projet, je voudrais que tu prenne en compte le fichier lié au component sur lequel tu travail, et que tu verifi si tu ne modifi pas système de base ou que tu indique si tu va faire des modif et si oui que tu modifi le docs en conséquance. Le but est d'avoir un context précis sur l'outils sur lequel tu va travaillé à la suite d'un prompt. Propose moi une modification de claude.md (dans ce projet) pour prendre en compte les docs de chaque component lors de modification de code.",
       "startedAt": "2026-05-06T09:50:00.000Z",
       "completedAt": "2026-05-06T10:00:00.000Z"
+    },
+    {
+      "id": "mod-047",
+      "version": "B0.42",
+      "date": "2026-05-06T13:30:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": ["system"],
+      "features": "system:workflow",
+      "title": "Sync base->child : auto-commit + backup auto + log infos-synchro.md",
+      "description": "Refonte complete de sync-from-base.bat (worganic-base). Resout deux problemes : (1) les fichiers ajoutes cote base (ex: docs/structure) n'arrivaient pas dans le child car les precedents syncs etaient annules a cause de modifs locales non commitees ; (2) les conflits sur fichiers issus de la base (CLAUDE.md, README.md...) bloquaient le sync et necessitaient une resolution manuelle. Nouveau workflow : (a) auto-commit + push child si modifs en cours (WIP avant sync) ; (b) fetch base ; (c) detection auto des fichiers tracks qui different entre HEAD et base/main, exclusion via .gitattributes merge=ours ; (d) backup de chaque version child sous <basename>-old-YYYYMMDD.<ext> + entree dans docs/infos-synchro.md + commit dedie ; (e) merge base/main -X theirs (favorise base, sans risque grace au backup) ; (f) update version.json baseSynced. Nouveau fichier sync-backup-helper.ps1 a la racine de la base, appele par le bat. La version precedente du sync-from-base.bat dans worganic-base etait obsolete (logique chemin local sans git remote) ; remplacee par la version basee remote git, alignee avec celle deja en service dans les childs.",
+      "files": [
+        "sync-from-base.bat",
+        "sync-backup-helper.ps1",
+        "data/base-propagation.json"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-opus-4-7",
+      "prompt": "dans la version de base @worganic-base\\ on a un dossier @worganic-base\\docs\\ que l'on retrouve dans github mais lorsque je met a jour un child, je ne retrouve pas le dossier structure. idem j'ai modifie le fichier @worganic-base\\CLAUDE.md qui est bien gitte, mais dans child je ne vois pas ce fichier mise a jour apres le lancement de @child--THI-V01\\sync-from-base.bat. Si les fichiers ont ete modifie dans le child et donc qui peuvent donne des conflits, il faut sauvarde la version child, exemple claude-old-20260505.md et recupere la version de base et indique dans un fichier /docs/infos-synchro.md les fichiers mise a jour et les fichiers renomme et la date.",
+      "startedAt": "2026-05-06T13:00:00.000Z",
+      "completedAt": "2026-05-06T13:30:00.000Z"
     }
   ]
 }
