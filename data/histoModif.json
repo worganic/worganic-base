@@ -1135,6 +1135,25 @@
       "prompt": "dans la version de base @worganic-base\\ on a un dossier @worganic-base\\docs\\ que l'on retrouve dans github mais lorsque je met a jour un child, je ne retrouve pas le dossier structure. idem j'ai modifie le fichier @worganic-base\\CLAUDE.md qui est bien gitte, mais dans child je ne vois pas ce fichier mise a jour apres le lancement de @child--THI-V01\\sync-from-base.bat. Si les fichiers ont ete modifie dans le child et donc qui peuvent donne des conflits, il faut sauvarde la version child, exemple claude-old-20260505.md et recupere la version de base et indique dans un fichier /docs/infos-synchro.md les fichiers mise a jour et les fichiers renomme et la date.",
       "startedAt": "2026-05-06T13:00:00.000Z",
       "completedAt": "2026-05-06T13:30:00.000Z"
+    },
+    {
+      "id": "mod-048",
+      "version": "B0.43",
+      "date": "2026-05-06T13:50:00.000Z",
+      "type": "fix",
+      "commitType": "FIX",
+      "scope": ["system"],
+      "features": "system:workflow",
+      "title": "sync-backup-helper.ps1 : filtrage diff-filter=M + naming robuste + git add -f",
+      "description": "Correction de bugs decouverts au premier test reel sur child--THI-V01. (1) Le helper utilisait git diff --name-only HEAD base/main qui retourne aussi les fichiers child-only (deleted from base perspective) et les fichiers nouveaux cote base : il essayait alors de backuper des fichiers child-specifiques (ex: B0.33-B0.41 markers, REGLES_GESTION_PROJET.md, .gitattributes). Correction : utilisation de --diff-filter=M pour les modifies-des-deux-cotes, --diff-filter=A pour les nouveaux base, --diff-filter=D pour les child-only (juste loggues). (2) Le naming des backups cassait pour les fichiers commencant par . (.gitattributes -> -old-20260506.gitattributes au lieu de .gitattributes-old-20260506) et pour les fichiers sans extension separable (B0.33 -> B0-old-20260506.33). Nouveau helper Get-BackupName qui detecte ces cas et suffixe simplement apres le nom complet. (3) git add echouait sur les backups touchant des fichiers ignores par .gitignore : ajout du flag -f. (4) ErrorActionPreference passe a Continue pour que les erreurs git non bloquantes (ex: add d'un fichier ignore) ne plantent pas le script.",
+      "files": [
+        "sync-backup-helper.ps1"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-opus-4-7",
+      "prompt": "(suite mod-047) Correctifs apres test reel : filtrage des fichiers child-only et naming pour fichiers sans extension.",
+      "startedAt": "2026-05-06T13:40:00.000Z",
+      "completedAt": "2026-05-06T13:50:00.000Z"
     }
   ]
 }
