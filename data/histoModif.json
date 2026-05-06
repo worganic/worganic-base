@@ -1073,6 +1073,47 @@
       "prompt": "les actions de la section admin/config ne fonctionne pas corectement, exemple j'active ou desactive le toogle \"Zone IA dans le header\", l'action n'est pas repertorié dans l'historique des action \"wo-action-history\". Il faut aussi pouvoir annulé l'action mais aussi pouvoir la rétablir si l'action à été annulé",
       "startedAt": "2026-05-04T07:48:51.000Z",
       "completedAt": "2026-05-04T08:15:00.000Z"
+    },
+    {
+      "id": "mod-045",
+      "version": "B0.40",
+      "date": "2026-05-04T08:35:00.000Z",
+      "type": "feature",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "frankenstein",
+        "server"
+      ],
+      "features": "frankenstein:wo-action-history,server:wo-action-history",
+      "title": "Tracking récursif des annulations/rétablissements dans wo-action-history",
+      "description": "Chaque clic «Annuler» ou «Rétablir» dans la page Historique des actions crée désormais une nouvelle entrée dans wo_action_history, elle-même annulable. Cela permet de retracer toutes les opérations dans l'ordre chronologique et de revenir à l'état initial via une chaîne d'annulations. Côté serveur (server-data.js) : les handlers POST /api/wo-action-history/:id/undo et /redo insèrent maintenant une nouvelle entrée après succès (actionType 'undo' ou 'redo', label «Annulation : <label original>» ou «Rétablissement : <label original>»). Pour éviter les doublons en cascade lorsque l'undoAction d'une entry meta cible elle-même un endpoint /api/wo-action-history/:id/redo, un header X-Internal-Call: 1 est ajouté sur les fetch internes : si présent, l'auto-tracking est skippé. Helper insertWoActionEntry extrait pour réutilisation. CORS allowedHeaders élargi à X-Internal-Call. Côté frontend : ajout des actionType 'undo'/'redo' dans WoActionType, libellés/icônes/couleurs (orange pour undo, cyan pour redo) dans wo-action-history.component, et reload de l'historique après undo/redo pour faire apparaître la nouvelle entrée.",
+      "files": [
+        "server/server-data.js",
+        "frankenstein/src/app/core/services/wo-action-history.service.ts",
+        "frankenstein/src/app/pages/user/wo-action-history/wo-action-history.component.ts"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-opus-4-7",
+      "prompt": "je voudrais une modification du syst-me wo-action-history. Lorsqu'une action est faite directement dans la page history (wo-action-history) comme \"annuler\" (une action) ou \"rétablir\" cela doit être considéré comme une action et donc enregistré comme une action, ainsi si on fait annulé sur une action cela crait une nouvelle action qui peut elle même être annulé et donc cela permettra de rétablir à l'état initial. Le but est de garder en mémoire tous ce qu'il ce passe part date/horraire.",
+      "startedAt": "2026-05-04T08:25:00.000Z",
+      "completedAt": "2026-05-04T08:35:00.000Z"
+    },
+    {
+      "id": "mod-046",
+      "version": "B0.41",
+      "date": "2026-05-06T10:00:00.000Z",
+      "type": "config",
+      "commitType": "AMELIORATION",
+      "scope": ["system"],
+      "features": "system:workflow",
+      "title": "CLAUDE.md : règle docs/structure composants Angular",
+      "description": "Ajout d'une règle obligatoire dans CLAUDE.md pour lire, vérifier et mettre à jour les fichiers de documentation dans docs/structure/ à chaque prompt touchant un composant Angular. Inclut la structure attendue pour chaque fichier doc et la règle d'inclusion dans git add.",
+      "files": ["CLAUDE.md"],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "j'ai créé un dossier @docs/structure pour l'ensemble des spécifications des components du projet, je voudrais que tu prenne en compte le fichier lié au component sur lequel tu travail, et que tu verifi si tu ne modifi pas système de base ou que tu indique si tu va faire des modif et si oui que tu modifi le docs en conséquance. Le but est d'avoir un context précis sur l'outils sur lequel tu va travaillé à la suite d'un prompt. Propose moi une modification de claude.md (dans ce projet) pour prendre en compte les docs de chaque component lors de modification de code.",
+      "startedAt": "2026-05-06T09:50:00.000Z",
+      "completedAt": "2026-05-06T10:00:00.000Z"
     }
   ]
 }

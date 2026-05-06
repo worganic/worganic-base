@@ -1,5 +1,30 @@
 # Worganic Platform — Instructions pour Claude Code
 
+## Information général sur les prompts :
+
+### Contexte pro :
+- Web designer/développeur no-code freelance
+- Stack : Webflow (Client-First), Framer, Figma, Shopify
+- Clients : PME francophones, artisans, indépendants
+
+### Préférences de réponse :
+- Réponds en français, ton direct, tutoiement
+- Pas d'introductions du type "Bien sûr, voici..."
+- Code commenté en français quand c'est complexe
+- HTML/CSS en Client-First (Finsweet) par défaut
+- Pas d'explications après le code sauf demande
+- Indique à la fin le nombre de token utilisé.
+
+### Bridage de l'output (CRUCIAL pour économiser) :
+- Tiens-toi strictement à ce que je demande, rien de plus
+- Ne propose pas d'étapes supplémentaires non sollicitées
+- Ne crée PAS d'artifact, document, fichier ou canvas
+  sans demande explicite
+- Pas de récap final ("En résumé...", "Pour conclure...")
+- Pas de disclaimers ("N'hésite pas si besoin")
+- Si la réponse tient en 3 phrases, ne fais pas 3 paragraphes
+- Si je dis "oui" ou "ok", ne développe pas
+
 ## Règle obligatoire : Vérification de compilation Angular
 
 **Après toute modification d'un fichier Angular** (`.html`, `.component.ts`, `.service.ts`, `.module.ts`), vérifier que l'application compile sans erreur avant de déclarer la tâche terminée.
@@ -319,6 +344,60 @@ frankenstein/src/app/components/
 - ❌ Copier-coller le même bloc HTML dans `dashboard.component.html` ET `framework-diagram.component.html`
 - ❌ Gérer la logique d'un popup directement dans un composant page (`dashboard.component.ts`)
 - ❌ Dupliquer des méthodes identiques (`openRoleInfo`, `closeRoleInfo`, `getRoleCategoryBgColor`…) dans plusieurs composants pages
+
+---
+
+## Règle obligatoire : Documentation des composants
+
+Le dossier `docs/structure/` contient la spécification fonctionnelle de chaque composant Angular.
+Convention de nommage : `<nom-du-composant>.component.md`.
+
+### À chaque prompt touchant un composant Angular
+
+**Étape 1 — Lire le doc** : avant toute modification, lire le fichier correspondant dans `docs/structure/`.
+Si le fichier n'existe pas → le créer à la fin avec la structure ci-dessous.
+
+**Étape 2 — Signaler un conflit éventuel** : si la modification prévue change le comportement documenté
+(Inputs/Outputs, règles métier, dépendances), le signaler **avant** de coder :
+> "⚠️ Cette modification affecte [section X] du doc. Je vais mettre à jour la doc après le code."
+
+**Étape 3 — Mettre à jour le doc** : après modification du composant, mettre à jour le fichier `.md`
+correspondant si l'une de ces sections a changé :
+- **Fonctionnement Général** : comportement global modifié
+- **Entrées / Sorties** : `@Input()` ou `@Output()` ajoutés, supprimés ou renommés
+- **Dépendances** : service injecté ajouté ou retiré
+- **Règles Métier** : logique métier ajoutée, modifiée ou supprimée
+- **Scénarios de Test** : nouveau cas de test ou régression couverte
+
+Ne pas mettre à jour si la modification est purement cosmétique (style, mise en page) ou un fix interne
+sans impact sur l'interface publique du composant.
+
+### Structure d'un fichier doc (à respecter à la création)
+
+```markdown
+# Documentation : NomDuComposant
+
+## Fonctionnement Général
+[Description du rôle du composant]
+
+## Entrées (Inputs) / Sorties (Outputs)
+- `@Input() xxx` : [description]
+- `@Output() yyy` : [description]
+
+## Dépendances
+- `NomService` : [rôle dans ce composant]
+
+## Règles Métier
+- [Règle 1]
+- [Règle 2]
+
+## Scénarios de Test Fonctionnel (Anti-Régression)
+1. [Scénario 1]
+2. [Scénario 2]
+```
+
+### Fichiers doc à inclure dans `git add`
+Si un fichier `docs/structure/*.md` a été modifié ou créé, l'inclure dans le commit associé.
 
 ---
 
