@@ -1104,11 +1104,15 @@
       "date": "2026-05-06T10:00:00.000Z",
       "type": "config",
       "commitType": "AMELIORATION",
-      "scope": ["system"],
+      "scope": [
+        "system"
+      ],
       "features": "system:workflow",
       "title": "CLAUDE.md : règle docs/structure composants Angular",
       "description": "Ajout d'une règle obligatoire dans CLAUDE.md pour lire, vérifier et mettre à jour les fichiers de documentation dans docs/structure/ à chaque prompt touchant un composant Angular. Inclut la structure attendue pour chaque fichier doc et la règle d'inclusion dans git add.",
-      "files": ["CLAUDE.md"],
+      "files": [
+        "CLAUDE.md"
+      ],
       "ai": "Claude Code",
       "model": "claude-sonnet-4-6",
       "prompt": "j'ai créé un dossier @docs/structure pour l'ensemble des spécifications des components du projet, je voudrais que tu prenne en compte le fichier lié au component sur lequel tu travail, et que tu verifi si tu ne modifi pas système de base ou que tu indique si tu va faire des modif et si oui que tu modifi le docs en conséquance. Le but est d'avoir un context précis sur l'outils sur lequel tu va travaillé à la suite d'un prompt. Propose moi une modification de claude.md (dans ce projet) pour prendre en compte les docs de chaque component lors de modification de code.",
@@ -1121,7 +1125,9 @@
       "date": "2026-05-06T13:30:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
-      "scope": ["system"],
+      "scope": [
+        "system"
+      ],
       "features": "system:workflow",
       "title": "Sync base->child : auto-commit + backup auto + log infos-synchro.md",
       "description": "Refonte complete de sync-from-base.bat (worganic-base). Resout deux problemes : (1) les fichiers ajoutes cote base (ex: docs/structure) n'arrivaient pas dans le child car les precedents syncs etaient annules a cause de modifs locales non commitees ; (2) les conflits sur fichiers issus de la base (CLAUDE.md, README.md...) bloquaient le sync et necessitaient une resolution manuelle. Nouveau workflow : (a) auto-commit + push child si modifs en cours (WIP avant sync) ; (b) fetch base ; (c) detection auto des fichiers tracks qui different entre HEAD et base/main, exclusion via .gitattributes merge=ours ; (d) backup de chaque version child sous <basename>-old-YYYYMMDD.<ext> + entree dans docs/infos-synchro.md + commit dedie ; (e) merge base/main -X theirs (favorise base, sans risque grace au backup) ; (f) update version.json baseSynced. Nouveau fichier sync-backup-helper.ps1 a la racine de la base, appele par le bat. La version precedente du sync-from-base.bat dans worganic-base etait obsolete (logique chemin local sans git remote) ; remplacee par la version basee remote git, alignee avec celle deja en service dans les childs.",
@@ -1142,7 +1148,9 @@
       "date": "2026-05-06T13:50:00.000Z",
       "type": "fix",
       "commitType": "FIX",
-      "scope": ["system"],
+      "scope": [
+        "system"
+      ],
       "features": "system:workflow",
       "title": "sync-backup-helper.ps1 : filtrage diff-filter=M + naming robuste + git add -f",
       "description": "Correction de bugs decouverts au premier test reel sur child--THI-V01. (1) Le helper utilisait git diff --name-only HEAD base/main qui retourne aussi les fichiers child-only (deleted from base perspective) et les fichiers nouveaux cote base : il essayait alors de backuper des fichiers child-specifiques (ex: B0.33-B0.41 markers, REGLES_GESTION_PROJET.md, .gitattributes). Correction : utilisation de --diff-filter=M pour les modifies-des-deux-cotes, --diff-filter=A pour les nouveaux base, --diff-filter=D pour les child-only (juste loggues). (2) Le naming des backups cassait pour les fichiers commencant par . (.gitattributes -> -old-20260506.gitattributes au lieu de .gitattributes-old-20260506) et pour les fichiers sans extension separable (B0.33 -> B0-old-20260506.33). Nouveau helper Get-BackupName qui detecte ces cas et suffixe simplement apres le nom complet. (3) git add echouait sur les backups touchant des fichiers ignores par .gitignore : ajout du flag -f. (4) ErrorActionPreference passe a Continue pour que les erreurs git non bloquantes (ex: add d'un fichier ignore) ne plantent pas le script.",
@@ -1154,6 +1162,41 @@
       "prompt": "(suite mod-047) Correctifs apres test reel : filtrage des fichiers child-only et naming pour fichiers sans extension.",
       "startedAt": "2026-05-06T13:40:00.000Z",
       "completedAt": "2026-05-06T13:50:00.000Z"
+    },
+    {
+      "id": "mod-049",
+      "version": "B0.44",
+      "date": "2026-05-16T11:00:00Z",
+      "type": "feature",
+      "commitType": "FIX",
+      "scope": [
+        "frankenstein",
+        "system"
+      ],
+      "features": "frankenstein:site,system:workflow",
+      "title": "Migration Angular 18 → Angular 20",
+      "description": "Migration complète du projet Angular 18.2 vers Angular 20 : ng update @angular/core@19, ng update @angular/core@20, migration du builder vers @angular/build:application, TypeScript 5.9.3, zone.js 0.15.1, migration des templates vers la nouvelle syntaxe control flow (@if/@for/@switch sur 33 fichiers), remplacement de APP_INITIALIZER par provideAppInitializer, correction du bug *ngStatus (directive inexistante) en @if. Compilation finale sans erreur.",
+      "files": [
+        "frankenstein/package.json",
+        "frankenstein/angular.json",
+        "frankenstein/src/app/app.config.ts",
+        "frankenstein/src/app/child/child-admin-tabs.ts",
+        "frankenstein/src/app/tools/wo/wo-actions/wo-actions.component.html",
+        "frankenstein/src/app/app.component.html",
+        "frankenstein/src/app/app.component.ts",
+        "frankenstein/src/app/pages/user/config/config.component.html",
+        "frankenstein/src/app/pages/public/landing/landing.component.html",
+        "frankenstein/src/app/shared/layout/header/header.component.html",
+        "frankenstein/src/app/shared/layout/header/header.component.ts",
+        "frankenstein/src/app/tools/tchat-ia/tchat-ia.component.html",
+        "frankenstein/src/app/tools/ticket-widget/ticket-widget.component.html",
+        "frankenstein/src/app/tools/cahier-recette/cahier-recette.component.html"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "je voudrais en utilisant le mcp Context7 que tu analyse le projet de base avec la version actuel et que tu la compare avec la derniere version actuellement disponible (stable) et que tu m'indique tous les changements a faire pour faire evolue le code vers la derniere version",
+      "startedAt": "2026-05-16T10:30:00Z",
+      "completedAt": "2026-05-16T11:00:00Z"
     }
   ]
 }

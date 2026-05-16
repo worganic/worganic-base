@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, Provider } from '@angular/core';
+import { Provider, EnvironmentProviders, provideAppInitializer, inject } from '@angular/core';
 import { AdminTabsRegistryService, AdminTabDef } from '../core/services/admin-tabs-registry.service';
 
 // Ajoutez ici les onglets admin spécifiques à ce child.
@@ -11,13 +11,8 @@ import { AdminTabsRegistryService, AdminTabDef } from '../core/services/admin-ta
 
 const CHILD_ADMIN_TABS: AdminTabDef[] = [];
 
-export const CHILD_ADMIN_TABS_PROVIDERS: Provider[] = [
-  {
-    provide: APP_INITIALIZER,
-    useFactory: (registry: AdminTabsRegistryService) => () => {
-      registry.registerChild(CHILD_ADMIN_TABS);
-    },
-    deps: [AdminTabsRegistryService],
-    multi: true
-  }
+export const CHILD_ADMIN_TABS_PROVIDERS: (Provider | EnvironmentProviders)[] = [
+  provideAppInitializer(() => {
+    inject(AdminTabsRegistryService).registerChild(CHILD_ADMIN_TABS);
+  })
 ];
