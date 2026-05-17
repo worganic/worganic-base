@@ -1,7 +1,7 @@
-{
+﻿{
   "entries": [
     {
-      "baseVersion": "B0.11",
+      "baseVersion": "B0.011",
       "date": "2026-04-25T13:00:00Z",
       "modRef": "mod-010",
       "title": "Zone IA header : défaut disabled + persistance redémarrage",
@@ -16,7 +16,7 @@
       "propagationNote": "Changer signal(true) en signal(false) dans config.service.ts. Dans server-data.js ajouter headerIaVisible dans le GET (depuis globalConf, défaut false) et dans le POST (destructurer + sauvegarder dans conf.json). Ajouter \"headerIaVisible\": false dans data/config/conf.json."
     },
     {
-      "baseVersion": "B0.12",
+      "baseVersion": "B0.012",
       "date": "2026-04-25T14:30:00Z",
       "modRef": "mod-011",
       "title": "Admin Thème base + preset sélectionné + CSS override",
@@ -34,7 +34,7 @@
       "propagationNote": "Créer admin/tabs/admin-theme/ avec le composant. Ajouter AdminThemeComponent dans admin.component.ts (import + BASE_ADMIN_TABS order:5 + imports[]). Mettre à jour app-config.service.ts (load css). Ajouter routes GET/POST /api/child/css dans server-data.js. Dans child-admin-tabs.ts : retirer le tab Thème et son import."
     },
     {
-      "baseVersion": "B0.13",
+      "baseVersion": "B0.013",
       "date": "2026-04-25T14:00:00Z",
       "modRef": "mod-012",
       "title": "Fix couleurs thème : neon-border, landing, contraste boutons",
@@ -51,7 +51,7 @@
       "propagationNote": "Remplacer styles.scss (neon-border/neon-text/link-card avec CSS vars), landing.component.scss (refactoring complet couleurs hardcodées -> CSS vars), admin-theme.component.ts (ajout getter buttonTextClass + isLight), admin-theme.component.html (text-white -> [ngClass]=buttonTextClass sur les boutons save)"
     },
     {
-      "baseVersion": "B0.17",
+      "baseVersion": "B0.017",
       "date": "2026-04-25T10:00:00Z",
       "modRef": "mod-016",
       "title": "Styles avancés admin/theme",
@@ -68,7 +68,7 @@
       "propagationNote": "Copier les 4 fichiers base vers le child. applyStyleSettings() dans app-config.service.ts applique les styleSettings au démarrage."
     },
     {
-      "baseVersion": "B0.18",
+      "baseVersion": "B0.018",
       "date": "2026-04-26T00:00:00Z",
       "modRef": "mod-017",
       "title": "Admin/Thème : couleur & police titres + groupe Textes (p)",
@@ -84,7 +84,7 @@
       "propagationNote": "Copier les 3 fichiers depuis la base. Nouvelles variables CSS dans :root (--h-color, --h-font-family, --p-color, --p-size, --p-font-family, --p-weight, --p-line-height). Nouveau groupe Textes (p) + type 'color' dans StyleSettingItem."
     },
     {
-      "baseVersion": "B0.21",
+      "baseVersion": "B0.021",
       "date": "2026-05-02T12:00:00.000Z",
       "modRef": "mod-020",
       "title": "Projet-editor + ConversationService + ProjectFilesService + server-data MAJ",
@@ -113,7 +113,7 @@
       "propagationNote": "Copier tout le dossier frankenstein/src/app/pages/user/projet-editor/ depuis la base. Ajouter conversation.service.ts et project-files.service.ts dans core/services/. Mettre à jour server-data.js (routes /api/conversations et /api/file-projects). Mettre à jour admin.component et admin-theme. Mettre à jour electron/ et packages."
     },
     {
-      "baseVersion": "B0.23",
+      "baseVersion": "B0.023",
       "date": "2026-05-02T20:36:09.747Z",
       "modRef": "mod-022",
       "title": "Admin deploy : routes propagation + query mode-aware",
@@ -129,7 +129,7 @@
       "propagationNote": "Copier server-data.js (GET /api/admin/deployments mode-aware + routes GET/PATCH /api/admin/propagation). Copier admin-deployments.component.ts et .html. Copier data/base-propagation.json dans le child."
     },
     {
-      "baseVersion": "B0.24",
+      "baseVersion": "B0.024",
       "date": "2026-05-02T20:59:19.004Z",
       "modRef": "mod-023",
       "title": "Admin deploy : colorisation ligne courante + fix propagation child-only + filter baseSynced",
@@ -145,7 +145,7 @@
       "propagationNote": "Copier les 2 fichiers du composant admin-deployments. Corriger data/base-propagation.json si B0.21 a encore propagationRequired:true."
     },
     {
-      "baseVersion": "B0.26",
+      "baseVersion": "B0.026",
       "date": "2026-05-03T00:00:00Z",
       "modRef": "mod-025",
       "title": "Système wo-action-history : service, page, BDD, nav, config",
@@ -171,7 +171,7 @@
       "propagationNote": "Créer wo-action-history.service.ts dans core/services/. Créer le dossier pages/user/wo-action-history/ avec les 3 fichiers (ts, html, scss). Dans base-routes.ts : ajouter la route wo-action-history. Dans nav.component.ts : injecter ConfigService. Dans nav.component.html : ajouter le lien conditionnel Historique. Dans config.service.ts : ajouter signal woActionHistoryNavEnabled + chargement navItems + méthode saveNavItems(). Dans config.component.ts : importer WoActionHistoryService, ajouter au constructeur, ajouter getter + toggleWoActionHistoryNav(). Dans config.component.html : ajouter le toggle UI Historique. Dans server-data.js : ajouter les 4 routes /api/wo-action-history + la table MySQL wo_action_history dans le init."
     },
     {
-      "baseVersion": "B0.27",
+      "baseVersion": "B0.027",
       "date": "2026-05-03T00:00:00Z",
       "modRef": "mod-026",
       "title": "Fix NG5002 template wo-action-history + règle CLAUDE.md build",
@@ -186,7 +186,7 @@
       "propagationNote": "Mettre à jour wo-action-history.component.html (fix [ngClass] pour classes Tailwind avec /). Mettre à jour CLAUDE.md (règle obligatoire ng build pour vérification compilation)."
     },
     {
-      "baseVersion": "B0.28",
+      "baseVersion": "B0.028",
       "date": "2026-05-03T00:00:00Z",
       "modRef": "mod-027",
       "title": "Historique actions : affichage diff champs modifiés",
@@ -201,7 +201,7 @@
       "propagationNote": "Mettre à jour wo-action-history.component.ts (méthode getDiffFields, parseState, sensitiveFields). Mettre à jour wo-action-history.component.html (section diff fields)."
     },
     {
-      "baseVersion": "B0.29",
+      "baseVersion": "B0.029",
       "date": "2026-05-03T00:00:00Z",
       "modRef": "mod-028",
       "title": "Boutons : couleur texte adaptative via --btn-text-color",
@@ -229,7 +229,7 @@
       "propagationNote": "Dans styles.scss : ajouter --btn-text-color: 255 255 255 dans :root dark. Dans tailwind.config.js : ajouter btn-text: rgb(var(--btn-text-color)). Remplacer text-white par dark:text-btn-text sur les boutons bg-primary dans tous les fichiers HTML listés."
     },
     {
-      "baseVersion": "B0.30",
+      "baseVersion": "B0.030",
       "date": "2026-05-03T00:00:00Z",
       "modRef": "mod-029",
       "title": "Config persistance enabledTabs + navItems + fix JSON parsing user.config",
@@ -243,7 +243,7 @@
       "propagationNote": "Dans GET /api/config/keys : corriger le parsing JSON de user.config (guard typeof string). Ajouter enabledTabs et navItems dans la réponse (depuis globalConf). Dans POST /api/config/keys : même fix JSON parsing. Déstructurer enabledTabs et navItems depuis req.body. Ajouter dans la condition de sauvegarde conf.json et sauvegarder les deux champs."
     },
     {
-      "baseVersion": "B0.31",
+      "baseVersion": "B0.031",
       "date": "2026-05-03T00:00:00Z",
       "modRef": "mod-030",
       "title": "Documentation système wo-action-history",
@@ -257,7 +257,7 @@
       "propagationNote": "Créer docs/infos-action-historique.md — documentation complète du système (architecture, table MySQL, service Angular, exemples, règles, checklist intégration)."
     },
     {
-      "baseVersion": "B0.32",
+      "baseVersion": "B0.032",
       "date": "2026-05-03T00:00:00Z",
       "modRef": "mod-031",
       "title": "Tracking actions admin/config dans wo-action-history",
@@ -272,7 +272,7 @@
       "propagationNote": "Dans config.component.ts : ajouter this.woHistory.track() dans toggleHeaderIa() et toggleWoActionHistoryNav(). Dans wo-action-history.component.ts : ajouter la section admin/config dans trackedTools[]."
     },
     {
-      "baseVersion": "B0.33",
+      "baseVersion": "B0.033",
       "date": "2026-05-03T00:00:00Z",
       "modRef": "mod-032",
       "title": "wo-action-history : filtre date + fix thème scss",
@@ -288,7 +288,7 @@
       "propagationNote": "Mettre à jour les 3 fichiers du composant wo-action-history (filtres par période, fix styles select dark mode)."
     },
     {
-      "baseVersion": "B0.35",
+      "baseVersion": "B0.035",
       "date": "2026-05-03T14:00:00Z",
       "modRef": "",
       "title": "sync-from-base.bat : git pull automatique avant lecture version",
@@ -302,7 +302,7 @@
       "propagationNote": "Remplacer sync-from-base.bat par la version de la base. Ajoute un git pull --ff-only sur worganic-base avant la lecture de BASE_VERSION, avec avertissement en cas d echec."
     },
     {
-      "baseVersion": "B0.39",
+      "baseVersion": "B0.039",
       "date": "2026-05-04T08:15:00Z",
       "modRef": "mod-044",
       "title": "Migration redo_action + tracking undoable des toggles admin/config",
@@ -313,7 +313,7 @@
       "propagationNote": "Sur server/server-data.js : récupérer le bloc de migration ALTER TABLE wo_action_history ADD COLUMN redo_action ajouté juste après le CREATE TABLE IF NOT EXISTS wo_action_history (autour des lignes 5456+). Ce bloc détecte via INFORMATION_SCHEMA si la colonne redo_action existe et l'ajoute sinon. Sans cette migration, tous les INSERT dans wo_action_history échouent silencieusement sur les BDD child créées avant B0.38, ce qui empêche tout tracking d'action. Au choix : redémarrer le serveur du child après pull pour appliquer auto, OU exécuter manuellement: ALTER TABLE wo_action_history ADD COLUMN redo_action JSON DEFAULT NULL AFTER undo_action."
     },
     {
-      "baseVersion": "B0.40",
+      "baseVersion": "B0.040",
       "date": "2026-05-04T09:50:00Z",
       "modRef": "",
       "title": "Projet-editor : tracking before/after + diff git-like dans wo-action-history",
@@ -326,7 +326,7 @@
       "propagationNote": "Trois fichiers à propager. (1) projet-editor.component.ts : ajout de l'injection de WoActionHistoryService et de quatre helpers (trackContentUpdate/Rename/Create/Delete + buildOldContentMap + trackContext). Snapshot des contenus de fichiers AVANT processSectionsChange (oldContentMap) puis appel des helpers après chaque opération réussie (rename/delete/create + updateFile main et additional). Toutes les actions sont undoables sauf delete (perte des sous-fichiers). (2) wo-action-history.component.ts : ajout d'une entrée 'projets' dans trackedTools, ensemble longTextFields = ['content'] exclu du diff inline, et signal expandedDiffs avec helpers toggleDiff/isDiffExpanded/hasContentDiff/getContentDiff (LCS line-by-line)/diffStats. (3) wo-action-history.component.html : nouveau bloc \"Content diff\" inséré juste après le bloc \"Diff fields\" (chevron + compteur +N/-N + tableau ligne-à-ligne avec gutters numérotés old/new style git, vert pour adds rouge pour dels)."
     },
     {
-      "baseVersion": "B0.42",
+      "baseVersion": "B0.042",
       "date": "2026-05-06T13:00:00Z",
       "modRef": "mod-047",
       "title": "sync-from-base.bat : auto-commit child + backup auto fichiers divergents + log infos-synchro.md",
@@ -338,7 +338,7 @@
       "propagationNote": "Refonte du workflow de synchronisation base -> child pour eviter la perte de fichiers (ex: docs/structure absent dans child apres sync) et automatiser la gestion des conflits sur les fichiers issus de la base (ex: CLAUDE.md). Procedure pour appliquer dans un child existant (cas poule-oeuf, le nouveau script doit etre present AVANT de lancer le sync) : (1) git fetch base ; (2) git checkout base/main -- sync-from-base.bat sync-backup-helper.ps1 ; (3) git add + commit ces 2 fichiers seuls ; (4) lancer sync-from-base.bat. Le nouveau workflow : (a) si modifs locales non commitees -> auto-commit + push child (WIP avant sync) ; (b) git fetch base ; (c) detection de tous les fichiers tracks divergents entre HEAD et base/main, exclusion de ceux marques merge=ours dans .gitattributes ; (d) pour chaque fichier divergent issu de la base -> backup de la version child courante en <basename>-old-YYYYMMDD.<ext>, ajout d'une entree dans docs/infos-synchro.md, commit \"Backup avant sync base BX.XX\" ; (e) git merge base/main --no-ff -X theirs (favorise la version base sur conflits, sans risque puisque la version child est sauvegardee) ; (f) mise a jour version.json baseSynced + amend du merge commit. Le helper PowerShell sync-backup-helper.ps1 doit etre place a la racine du child (meme dossier que sync-from-base.bat). docs/infos-synchro.md est cree automatiquement au premier sync."
     },
     {
-      "baseVersion": "B0.43",
+      "baseVersion": "B0.043",
       "date": "2026-05-06T13:50:00Z",
       "modRef": "mod-048",
       "title": "sync-backup-helper.ps1 : fix filtrage diff + naming robuste",
@@ -347,6 +347,18 @@
         "sync-backup-helper.ps1"
       ],
       "propagationNote": "Correctif du helper de sync (mod-047). Bugs initiaux : (1) backup tente sur des fichiers child-only ou nouveaux base alors qu'ils n'en ont pas besoin ; (2) naming casse pour .gitattributes/.gitignore et fichiers sans extension ; (3) git add plante sur les fichiers ignores par .gitignore. Le fichier corrige utilise --diff-filter=M pour les fichiers modifies des deux cotes, --diff-filter=A pour les nouveaux base, --diff-filter=D pour les child-only (juste loggues). Naming via fonction Get-BackupName qui suffixe apres le nom complet pour les cas particuliers. git add -f pour outrepasser .gitignore. Pour propager : git checkout base/main -- sync-backup-helper.ps1 dans le child (deja fait dans la session du sync B0.42)."
+    },
+    {
+      "baseVersion": "B0.045",
+      "date": "2026-05-17T00:00:00.000Z",
+      "modRef": "mod-050",
+      "title": "Migration versioning 2 → 3 décimales",
+      "propagationRequired": false,
+      "syncedBy": ["THI-V01"],
+      "propagationScope": [
+        "CLAUDE.md"
+      ],
+      "propagationNote": "CLAUDE.md déjà mis à jour directement dans child--THI-V01 (même migration versioning 2→3 décimales : +0.001 mineure, exemples corriges, BX.XXX partout). data/histoModif.json et data/base-propagation.json du child également migrés directement (THI-0.XX→THI-0.0XX, THI-1.XX→THI-0.1XX, B0.XX→B0.0XX). version.json child mis à jour (THI-0.108, baseSynced B0.044)."
     }
   ]
 }

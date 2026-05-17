@@ -1,8 +1,8 @@
-{
+﻿{
   "modifications": [
     {
       "id": "mod-001",
-      "version": "B0.02",
+      "version": "B0.002",
       "date": "2026-04-25T00:00:00Z",
       "type": "config",
       "commitType": "AMELIORATION",
@@ -29,7 +29,7 @@
     },
     {
       "id": "mod-002",
-      "version": "B0.03",
+      "version": "B0.003",
       "date": "2026-04-25T01:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -55,7 +55,7 @@
     },
     {
       "id": "mod-003",
-      "version": "B0.04",
+      "version": "B0.004",
       "date": "2026-04-25T02:00:00Z",
       "type": "fix",
       "commitType": "FIX",
@@ -78,7 +78,7 @@
     },
     {
       "id": "mod-004",
-      "version": "B0.05",
+      "version": "B0.005",
       "date": "2026-04-25T03:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -99,7 +99,7 @@
     },
     {
       "id": "mod-005",
-      "version": "B0.06",
+      "version": "B0.006",
       "date": "2026-04-25T04:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -120,7 +120,7 @@
     },
     {
       "id": "mod-006",
-      "version": "B0.07",
+      "version": "B0.007",
       "date": "2026-04-25T05:00:00Z",
       "type": "fix",
       "commitType": "FIX",
@@ -141,7 +141,7 @@
     },
     {
       "id": "mod-007",
-      "version": "B0.08",
+      "version": "B0.008",
       "date": "2026-04-25T06:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -162,7 +162,7 @@
     },
     {
       "id": "mod-008",
-      "version": "B0.09",
+      "version": "B0.009",
       "date": "2026-04-25T10:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -210,7 +210,7 @@
     },
     {
       "id": "mod-009",
-      "version": "B0.10",
+      "version": "B0.010",
       "date": "2026-04-25T12:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -235,7 +235,7 @@
     },
     {
       "id": "mod-010",
-      "version": "B0.11",
+      "version": "B0.011",
       "date": "2026-04-25T13:00:00Z",
       "type": "fix",
       "commitType": "FIX",
@@ -259,7 +259,7 @@
     },
     {
       "id": "mod-011",
-      "version": "B0.12",
+      "version": "B0.012",
       "date": "2026-04-25T14:30:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -285,7 +285,7 @@
     },
     {
       "id": "mod-012",
-      "version": "B0.13",
+      "version": "B0.013",
       "date": "2026-04-25T14:00:00Z",
       "type": "fix",
       "commitType": "FIX",
@@ -309,7 +309,7 @@
     },
     {
       "id": "mod-013",
-      "version": "B0.14",
+      "version": "B0.014",
       "date": "2026-04-25T15:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -331,7 +331,7 @@
     },
     {
       "id": "mod-014",
-      "version": "B0.15",
+      "version": "B0.015",
       "date": "2026-04-25T16:00:00Z",
       "type": "fix",
       "commitType": "FIX",
@@ -352,7 +352,7 @@
     },
     {
       "id": "mod-015",
-      "version": "B0.16",
+      "version": "B0.016",
       "date": "2026-04-25T16:30:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -373,7 +373,7 @@
     },
     {
       "id": "mod-016",
-      "version": "B0.17",
+      "version": "B0.017",
       "date": "2026-04-25T10:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -397,7 +397,7 @@
     },
     {
       "id": "mod-017",
-      "version": "B0.18",
+      "version": "B0.018",
       "date": "2026-04-26T00:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -420,7 +420,7 @@
     },
     {
       "id": "mod-018",
-      "version": "B0.19",
+      "version": "B0.019",
       "date": "2026-04-26T01:00:00Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -443,7 +443,7 @@
     },
     {
       "id": "mod-019",
-      "version": "B0.20",
+      "version": "B0.020",
       "date": "2026-04-26T10:00:00Z",
       "type": "fix",
       "commitType": "FIX",
@@ -465,7 +465,7 @@
     },
     {
       "id": "mod-020",
-      "version": "B0.21",
+      "version": "B0.021",
       "date": "2026-05-02T12:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -516,7 +516,7 @@
     },
     {
       "id": "mod-021",
-      "version": "B0.22",
+      "version": "B0.022",
       "date": "2026-05-02T12:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -537,7 +537,7 @@
     },
     {
       "id": "mod-022",
-      "version": "B0.23",
+      "version": "B0.023",
       "date": "2026-05-02T20:20:00.853Z",
       "type": "fix",
       "commitType": "FIX",
@@ -561,7 +561,7 @@
     },
     {
       "id": "mod-023",
-      "version": "B0.24",
+      "version": "B0.024",
       "date": "2026-05-02T20:45:27.229Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -583,7 +583,7 @@
     },
     {
       "id": "mod-024",
-      "version": "B0.25",
+      "version": "B0.025",
       "date": "2026-05-02T21:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -605,7 +605,7 @@
     },
     {
       "id": "mod-025",
-      "version": "B0.26",
+      "version": "B0.026",
       "date": "2026-05-03T12:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -641,7 +641,7 @@
     },
     {
       "id": "mod-026",
-      "version": "B0.26",
+      "version": "B0.026",
       "date": "2026-05-03T12:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -665,7 +665,7 @@
     },
     {
       "id": "mod-027",
-      "version": "B0.26",
+      "version": "B0.026",
       "date": "2026-05-03T13:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -687,7 +687,7 @@
     },
     {
       "id": "mod-028",
-      "version": "B0.27",
+      "version": "B0.027",
       "date": "2026-05-03T13:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -710,7 +710,7 @@
     },
     {
       "id": "mod-029",
-      "version": "B0.28",
+      "version": "B0.028",
       "date": "2026-05-03T14:00:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -732,7 +732,7 @@
     },
     {
       "id": "mod-030",
-      "version": "B0.28",
+      "version": "B0.028",
       "date": "2026-05-03T14:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -753,7 +753,7 @@
     },
     {
       "id": "mod-031",
-      "version": "B0.29",
+      "version": "B0.029",
       "date": "2026-05-03T15:30:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -790,7 +790,7 @@
     },
     {
       "id": "mod-032",
-      "version": "B0.29",
+      "version": "B0.029",
       "date": "2026-05-03T16:00:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -811,7 +811,7 @@
     },
     {
       "id": "mod-033",
-      "version": "B0.30",
+      "version": "B0.030",
       "date": "2026-05-03T16:30:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -832,7 +832,7 @@
     },
     {
       "id": "mod-034",
-      "version": "B0.31",
+      "version": "B0.031",
       "date": "2026-05-03T15:51:42.793Z",
       "type": "config",
       "commitType": "AMELIORATION",
@@ -853,7 +853,7 @@
     },
     {
       "id": "mod-035",
-      "version": "B0.32",
+      "version": "B0.032",
       "date": "2026-05-03T16:25:24.680Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -875,7 +875,7 @@
     },
     {
       "id": "mod-036",
-      "version": "B0.33",
+      "version": "B0.033",
       "date": "2026-05-03T16:31:02.002Z",
       "type": "fix",
       "commitType": "FIX",
@@ -897,7 +897,7 @@
     },
     {
       "id": "mod-037",
-      "version": "B0.33",
+      "version": "B0.033",
       "date": "2026-05-03T16:36:09.981Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -919,7 +919,7 @@
     },
     {
       "id": "mod-038",
-      "version": "B0.33",
+      "version": "B0.033",
       "date": "2026-05-03T16:43:33.240Z",
       "type": "fix",
       "commitType": "FIX",
@@ -941,7 +941,7 @@
     },
     {
       "id": "mod-039",
-      "version": "B0.34",
+      "version": "B0.034",
       "date": "2026-05-03T17:00:00.000Z",
       "type": "config",
       "commitType": "AMELIORATION",
@@ -962,7 +962,7 @@
     },
     {
       "id": "mod-040",
-      "version": "B0.35",
+      "version": "B0.035",
       "date": "2026-05-03T18:00:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -985,7 +985,7 @@
     },
     {
       "id": "mod-041",
-      "version": "B0.36",
+      "version": "B0.036",
       "date": "2026-05-03T23:34:13.973Z",
       "type": "fix",
       "commitType": "FIX",
@@ -1006,7 +1006,7 @@
     },
     {
       "id": "mod-042",
-      "version": "B0.37",
+      "version": "B0.037",
       "date": "2026-05-03T23:42:09.706Z",
       "type": "fix",
       "commitType": "FIX",
@@ -1027,7 +1027,7 @@
     },
     {
       "id": "mod-043",
-      "version": "B0.38",
+      "version": "B0.038",
       "date": "2026-05-03T23:48:39.967Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -1052,7 +1052,7 @@
     },
     {
       "id": "mod-044",
-      "version": "B0.39",
+      "version": "B0.039",
       "date": "2026-05-04T08:15:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -1076,7 +1076,7 @@
     },
     {
       "id": "mod-045",
-      "version": "B0.40",
+      "version": "B0.040",
       "date": "2026-05-04T08:35:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -1100,7 +1100,7 @@
     },
     {
       "id": "mod-046",
-      "version": "B0.41",
+      "version": "B0.041",
       "date": "2026-05-06T10:00:00.000Z",
       "type": "config",
       "commitType": "AMELIORATION",
@@ -1121,7 +1121,7 @@
     },
     {
       "id": "mod-047",
-      "version": "B0.42",
+      "version": "B0.042",
       "date": "2026-05-06T13:30:00.000Z",
       "type": "feature",
       "commitType": "AMELIORATION",
@@ -1144,7 +1144,7 @@
     },
     {
       "id": "mod-048",
-      "version": "B0.43",
+      "version": "B0.043",
       "date": "2026-05-06T13:50:00.000Z",
       "type": "fix",
       "commitType": "FIX",
@@ -1165,7 +1165,7 @@
     },
     {
       "id": "mod-049",
-      "version": "B0.44",
+      "version": "B0.044",
       "date": "2026-05-16T11:00:00Z",
       "type": "feature",
       "commitType": "FIX",
@@ -1197,6 +1197,30 @@
       "prompt": "je voudrais en utilisant le mcp Context7 que tu analyse le projet de base avec la version actuel et que tu la compare avec la derniere version actuellement disponible (stable) et que tu m'indique tous les changements a faire pour faire evolue le code vers la derniere version",
       "startedAt": "2026-05-16T10:30:00Z",
       "completedAt": "2026-05-16T11:00:00Z"
+    },
+    {
+      "id": "mod-050",
+      "version": "B0.045",
+      "date": "2026-05-17T00:00:00.000Z",
+      "type": "config",
+      "commitType": "AMELIORATION",
+      "scope": [
+        "system"
+      ],
+      "features": "system:workflow",
+      "title": "Migration versioning 2 → 3 décimales (base + child THI-V01)",
+      "description": "Migration du système de versioning de 2 décimales à 3 décimales pour éviter le débordement au .99. Base : B0.44 → B0.044. Child : THI-1.08 → THI-0.108. Règle de conversion child : THI-X.YY → THI-0.(X*100+YY padded 3 digits). Mise à jour de tous les fichiers historiques : data/histoModif.json (49 entrées base, 183 entrées child), data/base-propagation.json (base et child), version.json (base et child), CLAUDE.md (base et child). Les nouvelles incrémentations seront +0.001 (mineure) et +1.000 reset (majeure).",
+      "files": [
+        "version.json",
+        "data/histoModif.json",
+        "data/base-propagation.json",
+        "CLAUDE.md"
+      ],
+      "ai": "Claude Code",
+      "model": "claude-sonnet-4-6",
+      "prompt": "le système commit et push automatiquement après chaque modification avec +01 pour les modification mineur et +1 pour les modifications majeur, mais lorsqu'on arrive à .99 cela pose problème car on passe à 1 qui est une version majeur. JE voudrais que tu change un peu le système et que tu mette à jour toutes les anciennes version avec 3 chiffres après la virgule au lieu de 2 et que tu mette donc à jour toutes les anciennes version (fichier d'historique des versions avec 000 exemple si on à actuellement B0.44 on aura maintenant B0.044). Il faudra donc changer pour les prochain commit mais aussi mettre à jour les anciens. Et tous ça dans la base mais aussi dans le child child principal : E:\\www\\projet creat projet 2026-01\\--projets--\\child--THI-V01 qui utilise son propre chiffrage et qui est aussi en 2 chiffres après la virgule et il faut le passé à 3, attention pour le child il est déjà passé à THI-1.08 et il faudra le mettre en THI-0.108 et idem pour les anciennent version exemple THI-0.95 en THI-0.195 etc",
+      "startedAt": "2026-05-17T00:00:00.000Z",
+      "completedAt": "2026-05-17T00:00:00.000Z"
     }
   ]
 }
